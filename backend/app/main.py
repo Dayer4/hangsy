@@ -1,13 +1,43 @@
 from fastapi import FastAPI
 
-from app.db.database import engine
-from app.db.database import Base
+from app.db.database import engine, Base
 
-from app.models import hangout, item, route, driver, store
+# Import models so SQLAlchemy registers tables
+from app.models import (
+    hangout,
+    item,
+    route,
+    driver,
+    store,
+    user
+)
+
+# Import routers
+from app.routers import (
+    hangouts,
+    items,
+    stores,
+    routes,
+    drivers,
+    users
+)
+
 
 app = FastAPI()
 
+
+# Create database tables
 Base.metadata.create_all(bind=engine)
+
+
+# Register API routes
+app.include_router(hangouts.router)
+app.include_router(items.router)
+app.include_router(stores.router)
+app.include_router(routes.router)
+app.include_router(drivers.router)
+app.include_router(users.router)
+
 
 @app.get("/")
 def root():
