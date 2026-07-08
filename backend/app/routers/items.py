@@ -1,44 +1,27 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from app.db.database import engine, Base
+from app.db.database import get_db
+from app.models.item import Item
+from app.schemas.item import ItemCreate, ItemResponse
 
-# Import models so SQLAlchemy registers tables
-from app.models import (
-    hangout,
-    item,
-    route,
-    driver,
-    store,
-    user
+
+router = APIRouter(
+    prefix="/items",
+    tags=["Items"]
 )
+@router.post("/", response_model=ItemResponse)
+def create_item(
+    item: ItemCreate,
+    db: Session = Depends(get_db)
+):
+    new_item = Item(
+        **item.model_dump(),
+        total_item_cost=item.quantity * item.cost_per_unit
+    )
 
-# Import routers
-from app.routers import (
-    hangouts,
-    items,
-    stores,
-    routes,
-    drivers,
-    users
-)
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
 
-
-app = FastAPI()
-
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
-
-
-# Register API routes
-app.include_router(hangouts.router)
-app.include_router(items.router)
-app.include_router(stores.router)
-app.include_router(routes.router)
-app.include_router(drivers.router)
-app.include_router(users.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Hangsy API running"}
+    return new_item
