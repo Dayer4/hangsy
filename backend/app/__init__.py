@@ -1,1 +1,0 @@
-# any file with __init__ basically says the folder im in is a package so the compiler looks at it as a whole (usually doesnt contain code)
