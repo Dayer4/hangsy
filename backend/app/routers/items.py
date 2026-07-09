@@ -10,7 +10,7 @@ router = APIRouter(
     prefix="/items",
     tags=["Items"]
 )
-@router.post("/", response_model=ItemResponse)
+@router.post("/items", response_model=ItemResponse)
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db)

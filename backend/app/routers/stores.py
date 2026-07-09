@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -33,7 +33,20 @@ def get_stores(
     db: Session = Depends(get_db)
 ):
     return db.query(Store).all()
+@router.delete("/stores/{store_id}")
+def delete_store(store_id: int, db: Session = Depends(get_db)):
+    store = db.query(Store).filter(Store.store_id == store_id).first()
 
+    if store is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Store not found"
+        )
+
+    db.delete(store)
+    db.commit()
+
+    return {"message": "Store deleted successfully"}
 
 @router.get("/{store_id}", response_model=StoreResponse)
 def get_store(

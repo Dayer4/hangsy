@@ -13,7 +13,24 @@ router = APIRouter(
     tags=["Hangouts"]
 )
 
+@router.get("/hangouts/")
+def get_hangouts(db: Session = Depends(get_db)):
+    hangouts = db.query(Hangout).all()
+    return hangouts
+@router.delete("/hangouts/{hangout_id}")
+def delete_hangout(hangout_id: int, db: Session = Depends(get_db)):
+    hangout = db.query(Hangout).filter(Hangout.hangout_id == hangout_id).first()
 
+    if hangout is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Hangout not found"
+        )
+
+    db.delete(hangout)
+    db.commit()
+
+    return {"message": "Hangout deleted successfully"}
 @router.post("/", response_model=HangoutResponse)
 def create_hangout(
     hangout: HangoutCreate,
