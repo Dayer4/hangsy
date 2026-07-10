@@ -28,15 +28,6 @@ def create_route(
 
     return new_route
 
-
-# Get all route stops
-@router.get("/", response_model=list[RouteResponse])
-def get_routes(
-    db: Session = Depends(get_db)
-):
-    return db.query(Route).all()
-
-
 # Get a specific route stop
 @router.get("/{route_id}", response_model=RouteResponse)
 def get_route(
