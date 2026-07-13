@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
 #geo coding is just translating addresses to coords or vice versa (reverse geo coding is coords to address)
-
+# coords are useful for calculating routes / optimization
 geolocator = Nominatim(
     user_agent="hangsy"
 )

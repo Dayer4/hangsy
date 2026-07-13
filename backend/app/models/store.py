@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import ARRAY
 from app.db.database import Base
 
 
@@ -18,8 +19,6 @@ class Store(Base):
 
     location_lng = Column(Float)
 
-    pin_file_path = Column(String)
+    assigned_person_names = Column(ARRAY(String))
 
-    assigned_person_name = Column(String)
-
-    items_to_buy = Column(String)
+    items_to_buy = Column(ARRAY(String))

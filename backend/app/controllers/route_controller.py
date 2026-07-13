@@ -1,86 +1,109 @@
 # controllers/route_controller.py
 
+from app.models.route import Route
+from app.models.pickup import Pickup
 
-from models.route import Route
 
+def create_route(db, route_data, hangout_id): 
+# the purpose of db as a parameter is creating a temporary connection (similar to how u make a temp objects)
+# 
+    pickup_order = route_data.pickup_ids
 
-
-def add_stop(
-    db,
-    stop_data,
-    hangout_id
-):
-
-    stop = Route(
-        **stop_data.dict(),
-        hangout_id=hangout_id
+    # user is expected to add pickups then route stuff
+    # this is to verify pickup ids
+    pickups = (
+        db.query(Pickup)
+        .filter(Pickup.pickup_id.in_(pickup_order))
+        .all()
     )
 
-    db.add(stop)
+    if len(pickups) != len(pickup_order):
+        raise Exception("One or more pickup IDs do not exist")
+
+
+    route = Route(**route_data.dict(), hangout_id=hangout_id)
+
+    db.add(route)
     db.commit()
-    db.refresh(stop)
+    db.refresh(route)
 
-    return stop
+    return route
 
 
 
-def get_route(
+def get_routes(
     db,
     hangout_id
 ):
 
-    return db.query(Route)\
-        .filter(
-            Route.hangout_id == hangout_id
-        )\
-        .order_by(
-            Route.stop_order
-        )\
+    return (
+        db.query(Route)
+        .filter(Route.hangout_id == hangout_id)
         .all()
+    )
 
 
 
-def update_stop(
+def update_route(
     db,
-    stop_id,
+    route_id,
     data
 ):
 
-    stop = db.query(Route)\
-        .filter(
-            Route.route_id == stop_id
-        )\
+    route = (
+        db.query(Route)
+        .filter(Route.route_id == route_id)
         .first()
+    )
+
+    if not route:
+        raise Exception("Route not found")
 
 
-    for key,value in data.dict().items():
+    # If pickup order changes, validate again
+    if data.pickup_ids:
+
+        pickups = (
+            db.query(Pickup)
+            .filter(Pickup.pickup_id.in_(data.pickup_ids))
+            .all()
+        )
+
+        if len(pickups) != len(data.pickup_ids):
+            raise Exception("Invalid pickup ID")
+
+
+    for key, value in data.dict().items():
         setattr(
-            stop,
+            route,
             key,
             value
         )
 
 
     db.commit()
-    db.refresh(stop)
+    db.refresh(route)
 
-    return stop
+    return route
 
 
 
-def delete_stop(
+def delete_route(
     db,
-    stop_id
+    route_id
 ):
 
-    stop = db.query(Route)\
-        .filter(
-            Route.route_id == stop_id
-        )\
+    route = (
+        db.query(Route)
+        .filter(Route.route_id == route_id)
         .first()
+    )
+
+    if not route:
+        raise Exception("Route not found")
 
 
-    db.delete(stop)
+    db.delete(route)
     db.commit()
 
-    return stop
+    return route
