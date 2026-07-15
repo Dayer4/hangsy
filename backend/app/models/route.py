@@ -17,14 +17,6 @@ class Route(Base):
         ForeignKey("hangouts.hangout_id")
     )
 
-    starting_lat = Column(
-        Float
-    )
-
-    starting_lng = Column(
-        Float
-    )
-
     # each index represents a pickup and the first is the first pick up 2nd is second pick up etc.
     pickup_ids = Column(
         ARRAY(Integer),

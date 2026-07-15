@@ -9,7 +9,8 @@ from app.models import (
     route,
     driver,
     store,
-    user
+    user,
+    pickup
 )
 
 # Import routers
