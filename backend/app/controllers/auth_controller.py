@@ -1,8 +1,8 @@
 # controllers/auth_controller.py
 
 from sqlalchemy.orm import Session
-from models.user import User
-from schemas.auth import UserCreate
+from app.models.user import User
+from app.schemas.auth import UserCreate
 from passlib.context import CryptContext
 
 

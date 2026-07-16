@@ -1,7 +1,7 @@
 # controllers/store_controller.py
 
 
-from models.store import Store
+from app.models.store import Store
 
 
 

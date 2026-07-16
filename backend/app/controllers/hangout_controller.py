@@ -1,6 +1,6 @@
 # controllers/hangout_controller.py
 
-from models.hangout import Hangout
+from app.models.hangout import Hangout
 
 
 

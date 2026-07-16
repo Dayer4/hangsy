@@ -1,7 +1,7 @@
 # controllers/item_controller.py
 
 
-from models.item import Item
+from app.models.item import Item
 
 
 
