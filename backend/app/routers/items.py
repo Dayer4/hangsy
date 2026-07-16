@@ -27,12 +27,12 @@ def create_item(
 
     return new_item
 
-@router.get("/items/")
+@router.get("/")
 def get_items(db: Session = Depends(get_db)):
     items = db.query(Item).all()
     return items
 
-@router.delete("/items/{item_id}")
+@router.delete("/{item_id}")
 def delete_item(item_id: int, db: Session = Depends(get_db)):
     item = db.query(Item).filter(Item.item_id == item_id).first()
 

@@ -41,7 +41,9 @@ app.include_router(stores.router)
 app.include_router(routes.router)
 app.include_router(drivers.router)
 app.include_router(users.router)
-
+app.include_router(locations.router)
+app.include_router(auth.router)
+app.include_router(pickup.router)
 
 @app.get("/")
 def root():

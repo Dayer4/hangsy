@@ -12,15 +12,16 @@ class Route(Base):
         index=True
     )
 
-    hangout_id = Column(
-        Integer,
-        ForeignKey("hangouts.hangout_id")
-    )
+    # each index represents a pickup and the first is the starting point up 2nd is second pick up last is the stopping point.
 
-    # each index represents a pickup and the first is the first pick up 2nd is second pick up etc.
     pickup_ids = Column(
         ARRAY(Integer),
         nullable=False
+    )
+
+    hangout_id = Column(
+        Integer,
+        ForeignKey("hangouts.hangout_id")
     )
 
     __table_args__ = (

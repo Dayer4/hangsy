@@ -47,16 +47,16 @@ def get_route(
     return route
 
 
-# Get all route stops for a specific hangout
-@router.get("/hangout/{hangout_id}", response_model=list[RouteResponse])
+# Get all route stops for a specific hangout and specific driver
+@router.get("/hangout/{hangout_id}/{driver_id}", response_model=list[RouteResponse])
 def get_hangout_routes(
     hangout_id: int,
+    driver_id: int,
     db: Session = Depends(get_db)
 ):
     return db.query(Route).filter(
-        Route.hangout_id == hangout_id
-    ).order_by(
-        Route.stop_order
+        Route.hangout_id == hangout_id,
+        Route.driver_id == driver_id
     ).all()
 
 
