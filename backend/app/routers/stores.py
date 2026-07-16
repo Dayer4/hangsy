@@ -33,7 +33,7 @@ def get_stores(
     db: Session = Depends(get_db)
 ):
     return db.query(Store).all()
-@router.delete("/stores/{store_id}")
+@router.delete("/{store_id}")
 def delete_store(store_id: int, db: Session = Depends(get_db)):
     store = db.query(Store).filter(Store.store_id == store_id).first()
 

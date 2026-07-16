@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -10,7 +10,8 @@ router = APIRouter(
     prefix="/items",
     tags=["Items"]
 )
-@router.post("/items", response_model=ItemResponse)
+
+@router.post("/", response_model=ItemResponse)
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db)

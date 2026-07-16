@@ -20,7 +20,10 @@ from app.routers import (
     stores,
     routes,
     drivers,
-    users
+    users,
+    locations,
+    auth,
+    pickup
 )
 
 

@@ -1,6 +1,6 @@
 # app/routers/hangouts.py
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -13,11 +13,12 @@ router = APIRouter(
     tags=["Hangouts"]
 )
 
-@router.get("/hangouts/")
+@router.get("/{hangout_id}")
 def get_hangouts(db: Session = Depends(get_db)):
     hangouts = db.query(Hangout).all()
     return hangouts
-@router.delete("/hangouts/{hangout_id}")
+
+@router.delete("/{hangout_id}")
 def delete_hangout(hangout_id: int, db: Session = Depends(get_db)):
     hangout = db.query(Hangout).filter(Hangout.hangout_id == hangout_id).first()
 
@@ -31,6 +32,7 @@ def delete_hangout(hangout_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Hangout deleted successfully"}
+
 @router.post("/", response_model=HangoutResponse)
 def create_hangout(
     hangout: HangoutCreate,
