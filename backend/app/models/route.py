@@ -18,7 +18,7 @@ class Route(Base):
         ARRAY(Integer),
         nullable=False
     )
-
+    
     hangout_id = Column(
         Integer,
         ForeignKey("hangouts.hangout_id")

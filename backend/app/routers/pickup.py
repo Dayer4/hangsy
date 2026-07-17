@@ -7,36 +7,36 @@ from app.schemas.route import RouteCreate, RouteResponse
 
 
 router = APIRouter(
-    prefix="/locations",
-    tags=["Locations"]
+    prefix="/pickups",
+    tags=["pickups"]
 )
 
 
 @router.post("/", response_model=RouteResponse)
-def create_location(
-    location: RouteCreate,
+def create_pickup(
+    pickup: RouteCreate,
     db: Session = Depends(get_db)
 ):
-    new_location = Route(
-        **location.model_dump()
+    new_pickup = Route(
+        **pickup.model_dump()
     )
 
-    db.add(new_location)
+    db.add(new_pickup)
     db.commit()
-    db.refresh(new_location)
+    db.refresh(new_pickup)
 
-    return new_location
+    return new_pickup
 
 
 @router.get("/", response_model=list[RouteResponse])
-def get_locations(
+def get_pickups(
     db: Session = Depends(get_db)
 ):
     return db.query(Route).all()
 
 
 @router.get("/{route_id}", response_model=RouteResponse)
-def get_location(
+def get_pickup(
     route_id: int,
     db: Session = Depends(get_db)
 ):
