@@ -1,11 +1,26 @@
-#decided to go with dividing up the work instead of route optimization because google / apple maps does that already when i export
+# Decision (see Obsidian: Route Optimization.md / Versions.md): no custom route
+# optimization. Drivers just get an even split of pickups; Google/Apple Maps
+# handles turn-by-turn navigation on export (see services/export.py).
 
-import math
-import copy
 
-from ortools.init.python import init
-from ortools.linear_solver import pywraplp
+def split_pickups_by_driver(pickups, drivers):
+    """
+    Evenly divide pickups across drivers, round-robin style.
 
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+    pickups: list of Pickup rows (or anything with a .pickup_id)
+    drivers: list of Driver rows (or anything with a .driver_id)
 
+    Returns: dict of {driver_id: [pickup_id, ...]}, preserving pickup order
+    within each driver's list (order becomes that driver's Route.pickup_ids).
+    """
+    if not drivers:
+        return {}
+
+    assignments = {driver.driver_id: [] for driver in drivers}
+    driver_ids = list(assignments.keys())
+
+    for index, pickup in enumerate(pickups):
+        driver_id = driver_ids[index % len(driver_ids)]
+        assignments[driver_id].append(pickup.pickup_id)
+
+    return assignments

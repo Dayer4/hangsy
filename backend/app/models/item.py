@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from app.db.database import Base
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
+from app.db.connection import Base
 
 
 class Item(Base):
@@ -16,9 +16,11 @@ class Item(Base):
 
     item_name = Column(String)
 
-    cost_per_unit = Column(Integer)
+    # Float, not Integer — matches schemas/item.py so prices like $4.99
+    # don't get silently truncated. See Obsidian: Bugs and Issues.md.
+    cost_per_unit = Column(Float)
 
-    total_item_cost = Column(Integer)
+    total_item_cost = Column(Float)
 
     link = Column(String)
 

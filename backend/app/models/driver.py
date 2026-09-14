@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from app.db.database import Base
+from app.db.connection import Base
 
 
 class Driver(Base):

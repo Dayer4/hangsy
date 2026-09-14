@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float
-from app.db.database import Base
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from app.db.connection import Base
 
 
 class Hangout(Base):
@@ -19,6 +19,14 @@ class Hangout(Base):
 
     hangout_description = Column(String)
 
-    stores = Column(Float)
+    # `stores` column removed — Store already FKs to Hangout via hangout_id,
+    # this was a stray unused Float that nothing read or wrote. See Obsidian:
+    # Bugs and Issues.md.
 
     attendees = Column(String)
+
+    creator_id = Column(
+        Integer,
+        ForeignKey("users.user_id"),
+        nullable=False
+    )

@@ -9,8 +9,8 @@ class HangoutBase(BaseModel):
     hangout_date: int
     creation_date: int
     hangout_description: Optional[str] = None
-    stores: int
     attendees: str
+    creator_id: int
 
 
 class HangoutCreate(HangoutBase):

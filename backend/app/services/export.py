@@ -13,7 +13,7 @@ def create_google_maps_export(start, pickups):
     # Add pickups in order
     for pickup in pickups:
         locations.append(
-            str(pickup.latitude) + "," + str(pickup.longitude)
+            str(pickup.location_lat) + "," + str(pickup.location_lng)
         )
 
     route = "/".join(locations)
@@ -36,7 +36,7 @@ def create_apple_maps_export(start, pickups):
     # Add pickups in order
     for pickup in pickups:
         locations.append(
-            str(pickup.latitude) + "," + str(pickup.longitude)
+            str(pickup.location_lat) + "," + str(pickup.location_lng)
         )
 
     destination = locations[-1]

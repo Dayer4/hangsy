@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.connection import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
+from app.utils.security import get_password_hash
 
 
 router = APIRouter(
@@ -23,7 +24,7 @@ def create_user(
         username=user.username,
         email=user.email,
         full_name=user.full_name,
-        hangout_id=user.hangout_id
+        password=get_password_hash(user.password)
     )
 
     db.add(new_user)

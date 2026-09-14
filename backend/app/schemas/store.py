@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 
 class StoreBase(BaseModel):
@@ -7,9 +7,8 @@ class StoreBase(BaseModel):
     store_name: str
     location_lat: float
     location_lng: float
-    pin_file_path: Optional[str] = None
-    assigned_person_name: Optional[str] = None
-    items_to_buy: str
+    assigned_person_names: Optional[List[str]] = None
+    items_to_buy: List[str]
 
 
 class StoreCreate(StoreBase):

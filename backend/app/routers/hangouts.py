@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.connection import get_db
 from app.models.hangout import Hangout
 from app.schemas.hangout import HangoutCreate, HangoutResponse
 
@@ -13,10 +13,24 @@ router = APIRouter(
     tags=["Hangouts"]
 )
 
-@router.get("/{hangout_id}")
+@router.get("/", response_model=list[HangoutResponse])
 def get_hangouts(db: Session = Depends(get_db)):
-    hangouts = db.query(Hangout).all()
-    return hangouts
+    return db.query(Hangout).all()
+
+
+@router.get("/{hangout_id}", response_model=HangoutResponse)
+def get_hangout(hangout_id: int, db: Session = Depends(get_db)):
+    hangout = db.query(Hangout).filter(
+        Hangout.hangout_id == hangout_id
+    ).first()
+
+    if not hangout:
+        raise HTTPException(
+            status_code=404,
+            detail="Hangout not found"
+        )
+
+    return hangout
 
 @router.delete("/{hangout_id}")
 def delete_hangout(hangout_id: int, db: Session = Depends(get_db)):

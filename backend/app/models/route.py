@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, CheckConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
-from app.db.database import Base
+from app.db.connection import Base
 
 
 class Route(Base):
@@ -9,7 +9,8 @@ class Route(Base):
     route_id = Column(
         Integer,
         primary_key=True,
-        index=True
+        index=True,
+        nullable=False
     )
 
     # each index represents a pickup and the first is the starting point up 2nd is second pick up last is the stopping point.
@@ -19,9 +20,25 @@ class Route(Base):
         nullable=False
     )
     
+    pickup_order = Column(
+        Integer,
+        index=True,
+        nullable=False
+    )
+
     hangout_id = Column(
         Integer,
-        ForeignKey("hangouts.hangout_id")
+        ForeignKey("hangouts.hangout_id"),
+        nullable=False
+    )
+
+    location_lat = Column(
+        Float,
+        nullable=False
+    )
+    location_lng = Column(
+        Float,
+        nullable=False
     )
 
     __table_args__ = (

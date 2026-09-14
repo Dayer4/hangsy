@@ -8,6 +8,14 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+
+  /* Hangsy palette: periwinkle = actions/routes, mint = lists, amber = progress */
+  --periwinkle: #5b5fef;
+  --periwinkle-soft: #eeeefd;
+  --mint: #1fae8e;
+  --mint-soft: #e4f7f1;
+  --amber: #ffb648;
+  --surface: #f6f7fb;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -43,6 +51,13 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --periwinkle: #7b7ff5;
+    --periwinkle-soft: rgba(123, 127, 245, 0.15);
+    --mint: #2ec9a5;
+    --mint-soft: rgba(46, 201, 165, 0.15);
+    --amber: #ffc266;
+    --surface: #1b1c24;
   }
 
   #social .button-icon {

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from app.db.database import Base
+from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.dialects.postgresql import ARRAY
+from app.db.connection import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -12,7 +13,9 @@ class User(Base):
 
     full_name = Column(String)
 
-    hangout_id = Column(
-        Integer,
-        ForeignKey("hangouts.hangout_id")
+    password = Column(String)
+
+    hangout_ids = Column(
+        ARRAY(Integer),
+        default=list
     )

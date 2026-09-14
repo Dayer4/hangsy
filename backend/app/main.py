@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.db.database import engine, Base
+from app.db.connection import engine, Base
 
 # Import models so SQLAlchemy registers tables
 from app.models import (
@@ -21,7 +21,6 @@ from app.routers import (
     routes,
     drivers,
     users,
-    locations,
     auth,
     pickup
 )
@@ -41,7 +40,6 @@ app.include_router(stores.router)
 app.include_router(routes.router)
 app.include_router(drivers.router)
 app.include_router(users.router)
-app.include_router(locations.router)
 app.include_router(auth.router)
 app.include_router(pickup.router)
 

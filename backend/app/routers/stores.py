@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.connection import get_db
 from app.models.store import Store
 from app.schemas.store import StoreCreate, StoreResponse
 
