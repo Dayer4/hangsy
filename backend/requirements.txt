@@ -4,6 +4,7 @@ anyio==4.14.1
 click==8.4.2
 fastapi==0.139.0
 geopy==2.4.1
+google-auth==2.35.0
 h11==0.16.0
 httpx==0.28.1
 idna==3.18

@@ -34,34 +34,78 @@
   text-decoration: none;
 }
 
-.navbar-links {
-  display: flex;
-  gap: 6px;
+.navbar-spacer {
   flex: 1;
 }
 
-.navbar-link {
+.navbar-user {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 12px;
+}
+
+.navbar-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
   border-radius: 10px;
+  cursor: pointer;
+}
+
+.navbar-avatar-btn:hover {
+  background: var(--surface);
+}
+
+.navbar-caret {
   color: var(--text);
-  text-decoration: none;
-  font-size: 14.5px;
-  font-weight: 500;
+  transition: transform 0.15s ease;
 }
 
-.navbar-link.active,
-.navbar-link:hover {
-  background: var(--periwinkle-soft);
-  color: var(--periwinkle);
+.navbar-caret-open {
+  transform: rotate(180deg);
 }
 
-.navbar-user {
+.navbar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+
+.navbar-dropdown-item {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navbar-dropdown-item:hover {
+  background: var(--surface);
+}
+
+.navbar-dropdown-danger {
+  color: #d8455b;
 }
 
 .navbar-avatar {
@@ -170,14 +214,12 @@
 
 .hero-card {
   background: var(--text-h);
-  color: #fff;
   border-radius: 20px;
   padding: 26px 28px;
 }
 
 .hero-card-label {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.55);
   margin-bottom: 6px;
 }
 
@@ -189,7 +231,6 @@
 
 .hero-card-meta {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.65);
   margin-top: 4px;
 }
 
@@ -604,4 +645,83 @@
 
 .settings-row span {
   flex: 1;
+}
+
+.settings-chevron-open {
+  transform: rotate(180deg);
+}
+
+.settings-expand {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.settings-field input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--bg);
+}
+
+.settings-hint {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 145%;
+  margin: 0;
+}
+
+/* ---------- Draft (not logged in) ---------- */
+.draft-layout {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 56px 32px 64px;
+}
+
+.draft-intro h1 {
+  font-size: 28px;
+  margin: 0 0 6px;
+}
+
+.draft-card {
+  margin-top: 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.draft-note {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text);
+  margin: 4px 0 0;
+}
+
+.login-error {
+  color: #d8455b;
+  font-size: 13px;
+  margin: -4px 0 0;
+}
+
+.google-button-wrap {
+  display: flex;
+  justify-content: center;
 }

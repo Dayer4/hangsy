@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.connection import engine, Base
 
@@ -27,6 +28,16 @@ from app.routers import (
 
 
 app = FastAPI()
+
+# Lets the Vite dev server (localhost:5173) call this API from the browser.
+# Tighten this to your real frontend origin(s) before deploying anywhere.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Create database tables

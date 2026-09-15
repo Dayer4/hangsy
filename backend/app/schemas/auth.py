@@ -9,3 +9,7 @@ class LoginRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class GoogleLoginRequest(BaseModel):
+    credential: str  # the ID token Google's Identity Services button hands back
