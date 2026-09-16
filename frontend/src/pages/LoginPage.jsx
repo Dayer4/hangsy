@@ -159,7 +159,8 @@ export default function LoginPage() {
           )}
 
           <p className="login-footer">
-            No account yet? <Link to="/">Plan a hangout without one</Link>
+            No account yet? <Link to="/signup">Sign up</Link> · or{' '}
+            <Link to="/">plan a hangout without one</Link>
           </p>
         </div>
       </div>

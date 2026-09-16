@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.db.connection import engine, Base
 
@@ -23,17 +24,19 @@ from app.routers import (
     drivers,
     users,
     auth,
-    pickup
+    pickup,
+    calendar
 )
 
 
 app = FastAPI()
 
-# Lets the Vite dev server (localhost:5173) call this API from the browser.
-# Tighten this to your real frontend origin(s) before deploying anywhere.
+# Lets the frontend call this API from the browser. Comma-separated list in
+# CORS_ORIGINS for real deployments; defaults to the Vite dev server.
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,6 +56,7 @@ app.include_router(drivers.router)
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(pickup.router)
+app.include_router(calendar.router)
 
 @app.get("/")
 def root():

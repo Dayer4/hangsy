@@ -18,6 +18,16 @@ class ItemCreate(ItemBase):
     pass
 
 
+class ItemUpdate(BaseModel):
+    buyer_name: Optional[str] = None
+    quantity: Optional[int] = None
+    item_name: Optional[str] = None
+    cost_per_unit: Optional[float] = None
+    link: Optional[str] = None
+    notes: Optional[str] = None
+    bought: Optional[bool] = None
+
+
 class ItemResponse(ItemBase):
     item_id: int
     total_item_cost: float

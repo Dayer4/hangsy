@@ -1,17 +1,58 @@
-import { useState } from 'react'
-import { IconBell, IconCar, IconChevronRight, IconChevronDown } from '../components/icons.jsx'
+import { useState, useEffect } from 'react'
+import { IconCar, IconChevronDown } from '../components/icons.jsx'
+import { getMe, getMyDriver, saveMyDriver } from '../lib/api.js'
 
 export default function SettingsPage() {
+  const [user, setUser] = useState(null)
   const [vehicleOpen, setVehicleOpen] = useState(false)
   const [vehicle, setVehicle] = useState({
-    name: '',
-    seats: '',
-    plate: '',
+    driver_name: '',
+    capacity: '',
+    license_plate: '',
     notes: '',
   })
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    getMe().then(setUser).catch(() => {})
+    getMyDriver()
+      .then((driver) => {
+        if (driver) {
+          setVehicle({
+            driver_name: driver.driver_name || '',
+            capacity: driver.capacity ?? '',
+            license_plate: driver.license_plate || '',
+            notes: driver.notes || '',
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   function updateVehicle(field, value) {
+    setSaved(false)
     setVehicle((v) => ({ ...v, [field]: value }))
+  }
+
+  async function handleSaveVehicle(e) {
+    e.preventDefault()
+    setError('')
+    setSaving(true)
+    try {
+      await saveMyDriver({
+        driver_name: vehicle.driver_name,
+        capacity: parseInt(vehicle.capacity, 10) || 1,
+        license_plate: vehicle.license_plate || null,
+        notes: vehicle.notes || null,
+      })
+      setSaved(true)
+    } catch (err) {
+      setError(err.message || 'Could not save your vehicle')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -21,10 +62,12 @@ export default function SettingsPage() {
       <div className="settings-grid">
         <aside className="settings-sidebar">
           <div className="settings-profile">
-            <span className="navbar-avatar">Y</span>
+            <span className="navbar-avatar">
+              {user ? user.full_name.charAt(0).toUpperCase() : '?'}
+            </span>
             <div>
-              <div className="settings-profile-name">Yaonge Choi</div>
-              <div className="settings-profile-email">yaonge@email.com</div>
+              <div className="settings-profile-name">{user?.full_name || 'Loading…'}</div>
+              <div className="settings-profile-email">{user?.email || ''}</div>
             </div>
           </div>
         </aside>
@@ -33,12 +76,6 @@ export default function SettingsPage() {
           <section className="settings-group">
             <h2>Preferences</h2>
             <div className="settings-card">
-              <button type="button" className="settings-row">
-                <IconBell />
-                <span>Notifications</span>
-                <IconChevronRight className="module-chevron" />
-              </button>
-
               <button
                 type="button"
                 className="settings-row"
@@ -53,14 +90,15 @@ export default function SettingsPage() {
               </button>
 
               {vehicleOpen && (
-                <div className="settings-expand">
+                <form className="settings-expand" onSubmit={handleSaveVehicle}>
                   <label className="settings-field">
                     <span>Vehicle name</span>
                     <input
                       type="text"
                       placeholder="e.g. Mom's Honda CR-V"
-                      value={vehicle.name}
-                      onChange={(e) => updateVehicle('name', e.target.value)}
+                      value={vehicle.driver_name}
+                      onChange={(e) => updateVehicle('driver_name', e.target.value)}
+                      required
                     />
                   </label>
 
@@ -70,8 +108,9 @@ export default function SettingsPage() {
                       type="number"
                       min="1"
                       placeholder="e.g. 4"
-                      value={vehicle.seats}
-                      onChange={(e) => updateVehicle('seats', e.target.value)}
+                      value={vehicle.capacity}
+                      onChange={(e) => updateVehicle('capacity', e.target.value)}
+                      required
                     />
                   </label>
 
@@ -79,8 +118,8 @@ export default function SettingsPage() {
                     <span>License plate (optional)</span>
                     <input
                       type="text"
-                      value={vehicle.plate}
-                      onChange={(e) => updateVehicle('plate', e.target.value)}
+                      value={vehicle.license_plate}
+                      onChange={(e) => updateVehicle('license_plate', e.target.value)}
                     />
                   </label>
 
@@ -95,17 +134,16 @@ export default function SettingsPage() {
                   </label>
 
                   <p className="settings-hint">
-                    Seat capacity is meant to constrain route assignment (how many
-                    pickups this vehicle can take). Not wired to save yet — the
-                    backend's Driver model isn't linked to a specific logged-in user
-                    yet, so there's nowhere to persist this. Say the word and I'll
-                    add that link.
+                    Seat capacity feeds into route assignment as a constraint
+                    on how many pickups this vehicle can take.
                   </p>
 
-                  <button type="button" className="btn-primary" disabled>
-                    Save vehicle
+                  {error && <p className="login-error">{error}</p>}
+
+                  <button type="submit" className="btn-primary" disabled={saving}>
+                    {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save vehicle'}
                   </button>
-                </div>
+                </form>
               )}
             </div>
           </section>

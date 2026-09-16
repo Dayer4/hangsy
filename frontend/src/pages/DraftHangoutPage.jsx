@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconLock } from '../components/icons.jsx'
+import EmojiPicker from '../components/EmojiPicker.jsx'
 
 export default function DraftHangoutPage() {
   const navigate = useNavigate()
@@ -9,6 +10,8 @@ export default function DraftHangoutPage() {
     date: '',
     description: '',
     attendees: '',
+    emoji: '🎉',
+    imageUrl: '',
   })
 
   function update(field, value) {
@@ -26,6 +29,11 @@ export default function DraftHangoutPage() {
       </div>
 
       <div className="draft-card">
+        <label className="settings-field">
+          <span>Icon</span>
+          <EmojiPicker value={draft.emoji} onChange={(emoji) => update('emoji', emoji)} />
+        </label>
+
         <label className="settings-field">
           <span>Hangout name</span>
           <input

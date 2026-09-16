@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.connection import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
-from app.utils.security import get_password_hash
+from app.schemas.user import UserResponse
 
 
 router = APIRouter(
@@ -13,25 +12,10 @@ router = APIRouter(
 )
 
 
-# Create a user
-@router.post("/", response_model=UserResponse)
-def create_user(
-    user: UserCreate,
-    db: Session = Depends(get_db)
-):
-
-    new_user = User(
-        username=user.username,
-        email=user.email,
-        full_name=user.full_name,
-        password=get_password_hash(user.password)
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
+# User creation lives in routers/auth.py (`POST /auth/register`) now — that's
+# the only path that also handles email verification. This used to duplicate
+# that logic here without verification, which was a way to create an
+# unverified-forever account. See Obsidian: Bugs and Issues.md.
 
 
 # Get all users

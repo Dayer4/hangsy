@@ -20,6 +20,8 @@ from sqlalchemy.orm import sessionmaker
 
 from app.main import app
 from app.db.connection import Base, get_db
+from app.models.user import User
+from app.utils.security import get_password_hash, create_access_token
 
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -52,3 +54,25 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def auth_headers(db_session):
+    """A ready-made, already-verified logged-in user for tests that hit
+    auth-guarded endpoints. Created directly via the ORM rather than through
+    /auth/register, since the real signup flow requires clicking an emailed
+    link to verify — not something a test should have to simulate."""
+    user = User(
+        username="testuser_auth",
+        email="auth@test.com",
+        full_name="Auth Test User",
+        password=get_password_hash("password123"),
+        is_verified=True,
+        hangout_ids=[],
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    token = create_access_token(user.user_id)
+    return {"Authorization": f"Bearer {token}"}

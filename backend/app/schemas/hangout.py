@@ -9,6 +9,8 @@ class HangoutBase(BaseModel):
     hangout_date: int
     creation_date: int
     hangout_description: Optional[str] = None
+    emoji: Optional[str] = None
+    image_url: Optional[str] = None
     attendees: str
     creator_id: int
 

@@ -15,9 +15,10 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     user_id: int
-    # NOTE: password is intentionally NOT included here — this used to inherit
-    # it from UserBase and leak the hashed password in every API response.
-    # this auto increments because of the model primary key: "user_id = Column(Integer, primary_key=True, index=True)"
+    is_verified: bool = False
+    # NOTE: password and verification_token are intentionally NOT included
+    # here — UserResponse used to inherit password from UserBase and leak
+    # the hashed password in every API response.
 
     class Config:
         from_attributes = True

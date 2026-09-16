@@ -1,4 +1,5 @@
 import os
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
@@ -15,9 +16,11 @@ from app.utils.security import (
     create_access_token,
     decode_access_token,
 )
+from app.utils.email import send_email
 
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 router = APIRouter(
     prefix="/auth",
@@ -30,20 +33,45 @@ def register(
     user: UserCreate,
     db: Session = Depends(get_db)
 ):
+    verification_token = secrets.token_urlsafe(32)
 
     new_user = User(
         username=user.username,
         email=user.email,
         full_name=user.full_name,
         password=get_password_hash(user.password),
-        hangout_ids=user.hangout_ids
+        hangout_ids=user.hangout_ids,
+        is_verified=False,
+        verification_token=verification_token,
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
+    verify_link = f"{FRONTEND_URL}/verify?token={verification_token}"
+    send_email(
+        to=new_user.email,
+        subject="Verify your Hangsy account",
+        html=f"<p>Welcome to Hangsy! Click below to verify your email:</p>"
+             f"<p><a href=\"{verify_link}\">{verify_link}</a></p>",
+    )
+
     return new_user
+
+
+@router.get("/verify")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.verification_token == token).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or already-used verification link")
+
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+
+    return {"message": "Email verified — you can log in now"}
 
 
 @router.post("/login", response_model=Token)
@@ -55,6 +83,12 @@ def login(
 
     if not user or not user.password or not verify_password(credentials.password, user.password):
         raise HTTPException(status_code=401, detail="Incorrect username or password")
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Please verify your email before logging in — check your inbox for the link"
+        )
 
     token = create_access_token(user.user_id)
     return Token(access_token=token)
@@ -81,7 +115,8 @@ def google_login(
     token it received directly from Google. We verify that token ourselves
     (never trust it un-verified) and then find-or-create a matching User by
     email. Google-created users get password=None — they can never log in
-    via /auth/login, only via this endpoint.
+    via /auth/login, only via this endpoint. They're also auto-verified,
+    since Google already confirmed the email for us.
     """
     if not GOOGLE_CLIENT_ID:
         raise HTTPException(
@@ -108,6 +143,7 @@ def google_login(
             full_name=claims.get("name") or email.split("@")[0],
             password=None,
             hangout_ids=[],
+            is_verified=True,
         )
         db.add(user)
         db.commit()
@@ -123,8 +159,7 @@ def get_current_user(
 ) -> User:
     """Dependency for protecting routes: Depends(get_current_user).
 
-    Expects `Authorization: Bearer <token>`. Not wired into any routes yet —
-    add it as a dependency wherever a route needs to require login.
+    Expects `Authorization: Bearer <token>`.
     """
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -139,3 +174,8 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="User no longer exists")
 
     return user
+
+
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user

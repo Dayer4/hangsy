@@ -2,12 +2,22 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { IconSettings, IconLogout, IconChevronDown } from './icons.jsx'
 import { isAuthenticated, clearToken } from '../lib/auth.js'
+import { getMe } from '../lib/api.js'
 
 export default function NavBar() {
   const [open, setOpen] = useState(false)
+  const [initial, setInitial] = useState('?')
   const menuRef = useRef(null)
   const navigate = useNavigate()
   const loggedIn = isAuthenticated()
+
+  useEffect(() => {
+    if (loggedIn) {
+      getMe()
+        .then((u) => setInitial(u.full_name.charAt(0).toUpperCase()))
+        .catch(() => {})
+    }
+  }, [loggedIn])
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -42,7 +52,7 @@ export default function NavBar() {
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
             >
-              <span className="navbar-avatar">Y</span>
+              <span className="navbar-avatar">{initial}</span>
               <IconChevronDown
                 className={`navbar-caret ${open ? 'navbar-caret-open' : ''}`}
               />

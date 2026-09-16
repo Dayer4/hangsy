@@ -725,3 +725,301 @@
   display: flex;
   justify-content: center;
 }
+
+/* ---------- Emoji picker ---------- */
+.emoji-picker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.emoji-option {
+  font-size: 20px;
+  padding: 6px 0;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.emoji-option-selected {
+  border-color: var(--periwinkle);
+  background: var(--periwinkle-soft);
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.modal-card {
+  background: var(--bg);
+  border-radius: 18px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cover-preview {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+
+/* ---------- Hangout carousel (auto-scroll) ---------- */
+.carousel-viewport {
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+
+.carousel-track {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: carousel-scroll 18s linear infinite;
+}
+
+.carousel-viewport:hover .carousel-track {
+  animation-play-state: paused;
+}
+
+@keyframes carousel-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+.carousel-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.carousel-emoji {
+  font-size: 22px;
+}
+
+/* ---------- Calendar ---------- */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0 14px;
+}
+
+.calendar-month-label {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-weekday {
+  font-size: 12px;
+  color: var(--text);
+  text-align: center;
+  padding-bottom: 4px;
+}
+
+.calendar-cell {
+  min-height: 90px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendar-cell-empty {
+  border: none;
+}
+
+.calendar-day-number {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.calendar-tab {
+  font-size: 11.5px;
+  text-align: left;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: none;
+  background: var(--periwinkle-soft);
+  color: var(--periwinkle);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-tab-google {
+  background: var(--surface);
+  color: var(--text);
+  cursor: default;
+  border: 1px dashed var(--border);
+}
+
+/* ---------- Shopping list ---------- */
+.tab-row {
+  display: flex;
+  gap: 4px;
+  margin: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-button {
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-button-active {
+  color: var(--periwinkle);
+  border-bottom-color: var(--periwinkle);
+  font-weight: 600;
+}
+
+.store-block {
+  margin-bottom: 24px;
+}
+
+.store-block h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.item-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.item-table th {
+  text-align: left;
+  font-size: 11.5px;
+  color: var(--text);
+  padding: 8px 10px;
+  background: var(--surface);
+}
+
+.item-table td {
+  padding: 6px 10px;
+  font-size: 13.5px;
+  border-top: 1px solid var(--border);
+}
+
+.item-row-bought {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.item-cell-input {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--text-h);
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.item-cell-input:focus {
+  background: var(--surface);
+  outline: none;
+}
+
+.item-delete-btn {
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.add-store-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-store-form input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.autosuggest-panel {
+  max-width: 480px;
+}
+
+.suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestion-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* ---------- Route map ---------- */
+.route-map {
+  height: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}

@@ -8,6 +8,8 @@ from app.models.driver import Driver
 from app.models.hangout import Hangout
 from app.schemas.route import RouteCreate, RouteResponse
 from app.services.driver_assignments import split_pickups_by_driver
+from app.models.user import User
+from app.routers.auth import get_current_user
 
 
 router = APIRouter(
@@ -41,7 +43,8 @@ def _validate_pickup_ids(pickup_ids: list[int], db: Session):
 @router.post("/", response_model=RouteResponse)
 def create_route(
     route: RouteCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     _validate_pickup_ids(route.pickup_ids, db)
 
@@ -60,7 +63,8 @@ def create_route(
 @router.post("/assign/{hangout_id}", response_model=list[RouteResponse])
 def assign_routes(
     hangout_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     hangout = db.query(Hangout).filter(Hangout.hangout_id == hangout_id).first()
     if not hangout:
@@ -139,7 +143,8 @@ def get_hangout_routes(
 def update_route(
     route_id: int,
     route_update: RouteCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     route = db.query(Route).filter(
         Route.route_id == route_id
@@ -166,7 +171,8 @@ def update_route(
 @router.delete("/{route_id}")
 def delete_route(
     route_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     route = db.query(Route).filter(
         Route.route_id == route_id
