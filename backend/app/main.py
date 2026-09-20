@@ -12,7 +12,8 @@ from app.models import (
     driver,
     store,
     user,
-    pickup
+    pickup,
+    todo
 )
 
 # Import routers
@@ -25,7 +26,9 @@ from app.routers import (
     users,
     auth,
     pickup,
-    calendar
+    calendar,
+    todos,
+    geocode
 )
 
 
@@ -57,6 +60,8 @@ app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(pickup.router)
 app.include_router(calendar.router)
+app.include_router(todos.router)
+app.include_router(geocode.router)
 
 @app.get("/")
 def root():

@@ -8,21 +8,17 @@ import {
   disconnectCalendar,
 } from '../lib/api.js'
 import HangoutDetailModal from '../components/HangoutDetailModal.jsx'
-
-function daysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate()
-}
+import MonthGrid from '../components/MonthGrid.jsx'
 
 function toICSDate(dateInt) {
   return `${dateInt}` // YYYYMMDD is already valid as an ICS all-day DTSTART value
 }
 
+// Downloads a .ics file (the standard calendar-import format most calendar
+// apps — Google, Apple, Outlook — can open) so hangouts show up in whatever
+// calendar someone already uses, with no OAuth or account connection needed.
 function exportToICS(hangouts) {
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Hangsy//EN',
-  ]
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Hangsy//EN']
 
   for (const h of hangouts) {
     lines.push(
@@ -96,41 +92,6 @@ export default function CalendarPage() {
     setConnected(false)
   }
 
-  const hangoutsByDay = {}
-  for (const h of hangouts) {
-    const s = String(h.hangout_date)
-    if (s.length !== 8) continue
-    const y = parseInt(s.slice(0, 4), 10)
-    const m = parseInt(s.slice(4, 6), 10) - 1
-    const d = parseInt(s.slice(6, 8), 10)
-    if (y === cursor.year && m === cursor.month) {
-      hangoutsByDay[d] = [...(hangoutsByDay[d] || []), h]
-    }
-  }
-
-  const googleEventsByDay = {}
-  for (const e of googleEvents) {
-    if (!e.start) continue
-    const d = parseInt(e.start.slice(8, 10), 10)
-    googleEventsByDay[d] = [...(googleEventsByDay[d] || []), e]
-  }
-
-  const total = daysInMonth(cursor.year, cursor.month)
-  const firstWeekday = new Date(cursor.year, cursor.month, 1).getDay()
-  const cells = [...Array(firstWeekday).fill(null), ...Array.from({ length: total }, (_, i) => i + 1)]
-
-  function shiftMonth(delta) {
-    setCursor(({ year, month }) => {
-      const d = new Date(year, month + delta, 1)
-      return { year: d.getFullYear(), month: d.getMonth() }
-    })
-  }
-
-  const monthLabel = new Date(cursor.year, cursor.month, 1).toLocaleDateString(undefined, {
-    month: 'long',
-    year: 'numeric',
-  })
-
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -138,7 +99,7 @@ export default function CalendarPage() {
           <h1>Calendar</h1>
           <p className="muted">Every hangout, by date.</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="dashboard-header-actions">
           <button type="button" className="btn-secondary" onClick={() => exportToICS(hangouts)}>
             Export .ics
           </button>
@@ -154,52 +115,22 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="calendar-nav">
-        <button type="button" className="btn-secondary" onClick={() => shiftMonth(-1)}>←</button>
-        <span className="calendar-month-label">{monthLabel}</span>
-        <button type="button" className="btn-secondary" onClick={() => shiftMonth(1)}>→</button>
-      </div>
-
-      <div className="calendar-grid">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-          <div key={d} className="calendar-weekday">{d}</div>
-        ))}
-        {cells.map((day, i) => (
-          <div key={i} className={`calendar-cell ${day ? '' : 'calendar-cell-empty'}`}>
-            {day && (
-              <>
-                <span className="calendar-day-number">{day}</span>
-                {(hangoutsByDay[day] || []).map((h) => (
-                  <button
-                    key={h.hangout_id}
-                    type="button"
-                    className="calendar-tab"
-                    onClick={() => setSelectedHangout(h)}
-                  >
-                    {h.emoji} {h.hangout_name}
-                  </button>
-                ))}
-                {(googleEventsByDay[day] || []).map((e, i) => (
-                  <span key={i} className="calendar-tab calendar-tab-google" title={e.summary}>
-                    {e.summary}
-                  </span>
-                ))}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+      <MonthGrid
+        hangouts={hangouts}
+        googleEvents={googleEvents}
+        cursor={cursor}
+        onCursorChange={setCursor}
+        onSelectHangout={setSelectedHangout}
+      />
 
       {!connected && (
-        <p className="muted" style={{ fontSize: 13, marginTop: 16 }}>
-          Connect Google Calendar to see your other events alongside hangsy's
-          hangouts — hangsy never needs this to work, it's purely additive.
+        <p className="muted calendar-google-hint">
+          Connect Google Calendar to see your other events alongside hangsy's hangouts — hangsy never
+          needs this to work, it's purely additive.
         </p>
       )}
 
-      {selectedHangout && (
-        <HangoutDetailModal hangout={selectedHangout} onClose={() => setSelectedHangout(null)} />
-      )}
+      {selectedHangout && <HangoutDetailModal hangout={selectedHangout} onClose={() => setSelectedHangout(null)} />}
     </div>
   )
 }

@@ -172,7 +172,7 @@
   width: 100%;
 }
 
-/* ---------- Dashboard (home) ---------- */
+/* ---------- Dashboard shell (home, calendar, shopping, route pages) ---------- */
 .dashboard {
   max-width: 1180px;
   margin: 0 auto;
@@ -189,11 +189,16 @@
 
 .dashboard-header h1 {
   margin: 0 0 4px;
-  font-size: 30px;
-  letter-spacing: -0.5px;
+  font-size: 28px;
 }
 
-.dashboard-grid {
+.dashboard-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Home page: calendar + to-do + hangout list ---------- */
+.home-grid {
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 24px;
@@ -201,75 +206,50 @@
 }
 
 @media (max-width: 860px) {
-  .dashboard-grid {
+  .home-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.dashboard-main {
+.home-main {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 24px 24px;
+}
+
+.home-panel-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.home-panel-title {
+  font-family: var(--heading);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.home-panel-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--periwinkle);
+  text-decoration: none;
+}
+
+.home-panel-link:hover {
+  text-decoration: underline;
+}
+
+.home-side {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-.hero-card {
-  background: var(--text-h);
-  border-radius: 20px;
-  padding: 26px 28px;
-}
-
-.hero-card-label {
-  font-size: 12.5px;
-  margin-bottom: 6px;
-}
-
-.hero-card-title {
-  font-family: var(--heading);
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.hero-card-meta {
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.hero-progress {
-  margin-top: 20px;
-}
-
-.hero-progress-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.65);
-  margin-bottom: 6px;
-}
-
-.progress-track {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: var(--amber);
-}
-
-.module-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-@media (max-width: 620px) {
-  .module-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* ---------- Shared "hangout opens a modal" building blocks ---------- */
 .module-card {
   display: flex;
   align-items: center;
@@ -331,12 +311,6 @@
   flex-shrink: 0;
 }
 
-.dashboard-side {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .side-card {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -351,37 +325,175 @@
   margin-bottom: 12px;
 }
 
-.upcoming-list {
+/* Real scroll, not a duplicated-and-looped list — a fixed max-height with
+   overflow, so "all your hangouts" never visually implies there are more
+   hangouts than actually exist. */
+.hangout-scroll-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hangout-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.hangout-row:hover {
+  background: var(--surface);
+}
+
+.hangout-row-emoji {
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+.hangout-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.hangout-row-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hangout-row-date {
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ---------- To-do widget ---------- */
+.todo-widget {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.todo-widget-title {
+  font-family: var(--heading);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 10px;
+}
+
+.todo-empty {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.todo-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2px;
 }
 
-.upcoming-list li {
+.todo-list li {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  align-items: center;
+  gap: 4px;
 }
 
-.upcoming-list li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.upcoming-name {
+.todo-check {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 4px;
   font-size: 14px;
-  font-weight: 500;
+  color: var(--text-h);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.todo-check input {
+  accent-color: var(--periwinkle);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.todo-check span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todo-item-done .todo-check span {
+  color: var(--text);
+  text-decoration: line-through;
+}
+
+.todo-remove {
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.todo-list li:hover .todo-remove {
+  opacity: 1;
+}
+
+.todo-add-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.todo-add-form input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13.5px;
+  background: var(--surface);
   color: var(--text-h);
 }
 
-.upcoming-date {
-  font-size: 12.5px;
-  color: var(--text);
+.todo-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  border: none;
+  border-radius: 9px;
+  background: var(--periwinkle-soft);
+  color: var(--periwinkle);
+  cursor: pointer;
 }
 
 /* ---------- Login (split screen) ---------- */
@@ -564,6 +676,10 @@
   gap: 12px;
 }
 
+.settings-profile .dropzone-circle {
+  min-height: 0;
+}
+
 .settings-profile-name {
   font-weight: 600;
   font-size: 14.5px;
@@ -645,6 +761,63 @@
 
 .settings-row span {
   flex: 1;
+}
+
+.settings-row-static {
+  cursor: default;
+}
+
+.settings-row-static:hover {
+  background: none;
+}
+
+.settings-row-bordered {
+  border-top: 1px solid var(--border);
+}
+
+.settings-inline-link {
+  flex: none;
+  border: none;
+  background: none;
+  color: var(--periwinkle);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.settings-static-value {
+  padding: 0 16px 13px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.settings-expand-quiet {
+  background: none;
+  border-top: 1px solid var(--border);
+}
+
+.modal-actions-inline {
+  margin-top: 0;
+}
+
+.verify-badge {
+  flex: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.verify-badge-ok {
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
+.verify-badge-pending {
+  background: var(--amber-soft);
+  color: #a06600;
 }
 
 .settings-chevron-open {
@@ -791,52 +964,210 @@
   margin-top: 6px;
 }
 
-/* ---------- Hangout carousel (auto-scroll) ---------- */
-.carousel-viewport {
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-}
-
-.carousel-track {
+/* ---------- Drag-and-drop image upload ---------- */
+.dropzone {
+  border: 1.5px dashed var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  animation: carousel-scroll 18s linear infinite;
-}
-
-.carousel-viewport:hover .carousel-track {
-  animation-play-state: paused;
-}
-
-@keyframes carousel-scroll {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
-}
-
-.carousel-card {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 12px;
-  background: var(--surface);
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 18px;
+  overflow: hidden;
+  position: relative;
 }
 
-.carousel-emoji {
-  font-size: 22px;
+.dropzone-rect {
+  min-height: 120px;
+}
+
+.dropzone-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.dropzone-active {
+  border-color: var(--periwinkle);
+  background: var(--periwinkle-soft);
+}
+
+.dropzone-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dropzone-circle .dropzone-preview {
+  border-radius: 50%;
+}
+
+.dropzone-hint {
+  font-size: 12.5px;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
+}
+
+.dropzone-rect .dropzone-preview + .dropzone-hint {
+  background: rgba(20, 20, 30, 0.55);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.dropzone-circle .dropzone-hint {
+  display: none;
+}
+
+.dropzone-circle .dropzone-preview ~ .dropzone-hint {
+  display: none;
+}
+
+.dropzone-error {
+  font-size: 12px;
+  color: #d8455b;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.dropzone-url-only {
+  cursor: default;
+  border-style: solid;
+  padding: 10px;
+  gap: 8px;
+}
+
+.dropzone-url-only input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  background: var(--bg);
+}
+
+/* ---------- Address autocomplete ---------- */
+.address-field {
+  position: relative;
+}
+
+.address-field input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--bg);
+}
+
+.address-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.address-suggestions li + li {
+  margin-top: 2px;
+}
+
+.address-suggestions button {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--text-h);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.address-suggestions button:hover {
+  background: var(--periwinkle-soft);
+  color: var(--periwinkle);
+}
+
+.address-suggestion-loading {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.address-hint {
+  font-size: 11.5px;
+  color: var(--text);
+  margin: 6px 0 0;
+  line-height: 140%;
+}
+
+.address-selected {
+  font-size: 12.5px;
+  color: var(--mint);
+  margin: 6px 0 0;
 }
 
 /* ---------- Calendar ---------- */
+.month-grid-compact .calendar-cell {
+  min-height: 64px;
+}
+
 .calendar-nav {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 20px 0 14px;
+  margin: 0 0 14px;
+}
+
+.calendar-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-nav-btn:hover {
+  border-color: var(--periwinkle);
+  color: var(--periwinkle);
 }
 
 .calendar-month-label {
+  font-family: var(--heading);
   font-weight: 600;
   font-size: 16px;
+  color: var(--text-h);
 }
 
 .calendar-grid {
@@ -866,6 +1197,11 @@
   border: none;
 }
 
+.calendar-cell-today {
+  border-color: var(--periwinkle);
+  background: var(--periwinkle-soft);
+}
+
 .calendar-day-number {
   font-size: 12px;
   color: var(--text);
@@ -892,31 +1228,12 @@
   border: 1px dashed var(--border);
 }
 
+.calendar-google-hint {
+  font-size: 12.5px;
+  margin-top: 14px;
+}
+
 /* ---------- Shopping list ---------- */
-.tab-row {
-  display: flex;
-  gap: 4px;
-  margin: 20px 0 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tab-button {
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: 14px;
-  color: var(--text);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-}
-
-.tab-button-active {
-  color: var(--periwinkle);
-  border-bottom-color: var(--periwinkle);
-  font-weight: 600;
-}
-
 .store-block {
   margin-bottom: 24px;
 }
@@ -931,7 +1248,8 @@
   border-collapse: collapse;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
 }
 
@@ -982,10 +1300,14 @@
   display: flex;
   gap: 8px;
   margin-top: 10px;
+  align-items: flex-start;
+}
+
+.add-store-form .address-field {
+  flex: 1;
 }
 
 .add-store-form input {
-  flex: 1;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 9px 12px;
@@ -993,26 +1315,43 @@
   font-size: 14px;
 }
 
-.autosuggest-panel {
-  max-width: 480px;
+.add-store-hint {
+  font-size: 12px;
+  margin-top: 6px;
 }
 
-.suggestion-list {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* Add-item row lives OUTSIDE .item-table on purpose (see ShoppingListPage.jsx)
+   so its suggestion dropdown isn't clipped by the table's overflow:hidden
+   rounded corners — styled to read as an attached continuation of it. */
+.item-add-row {
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 2px 4px;
+  margin-bottom: 24px;
 }
 
-.suggestion-row {
+.item-add-row .item-cell-input {
+  padding: 8px;
+}
+
+.item-suggestions {
+  width: 100%;
+}
+
+.item-suggestion-btn {
   display: flex;
   justify-content: space-between;
-  padding: 10px 12px;
-  background: var(--surface);
-  border-radius: 10px;
-  font-size: 14px;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-suggestion-price {
+  color: var(--mint);
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 /* ---------- Route map ---------- */

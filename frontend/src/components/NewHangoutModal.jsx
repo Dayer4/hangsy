@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import EmojiPicker from './EmojiPicker.jsx'
+import AddressField from './AddressField.jsx'
+import ImageDropzone from './ImageDropzone.jsx'
 import { createHangout } from '../lib/api.js'
-import { uploadImage, IMAGE_UPLOAD_CONFIGURED } from '../lib/upload.js'
 
 function toDateInt(dateString) {
   return parseInt(dateString.replaceAll('-', ''), 10)
@@ -18,36 +19,25 @@ export default function NewHangoutModal({ currentUser, onClose, onCreated }) {
   const [attendees, setAttendees] = useState('')
   const [emoji, setEmoji] = useState('🎉')
   const [imageUrl, setImageUrl] = useState('')
-  const [uploading, setUploading] = useState(false)
+  const [location, setLocation] = useState(null) // { lat, lng, label }
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-
-  async function handleImageFile(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setError('')
-    setUploading(true)
-    try {
-      const url = await uploadImage(file)
-      setImageUrl(url)
-    } catch (err) {
-      setError(err.message || 'Image upload failed')
-    } finally {
-      setUploading(false)
-    }
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+
+    if (!location) {
+      setError('Pick an address from the suggestions so the route map knows where this is.')
+      return
+    }
+
     setSubmitting(true)
     try {
       const created = await createHangout({
         hangout_name: name,
-        // TODO: no address/geocoding input yet — see Obsidian To-Do.
-        // Hardcoding 0,0 until a location field is wired to services/geocoding.
-        hangout_location_lat: 0,
-        hangout_location_lng: 0,
+        hangout_location_lat: location.lat,
+        hangout_location_lng: location.lng,
         hangout_date: toDateInt(date),
         creation_date: todayAsInt(),
         hangout_description: description || null,
@@ -77,22 +67,7 @@ export default function NewHangoutModal({ currentUser, onClose, onCreated }) {
 
           <label className="settings-field">
             <span>Cover image (optional)</span>
-            {IMAGE_UPLOAD_CONFIGURED ? (
-              <>
-                <input type="file" accept="image/*" onChange={handleImageFile} />
-                {uploading && <span className="muted" style={{ fontSize: 12.5 }}>Uploading…</span>}
-                {imageUrl && !uploading && (
-                  <img src={imageUrl} alt="Cover preview" className="cover-preview" />
-                )}
-              </>
-            ) : (
-              <input
-                type="url"
-                placeholder="https://... (file upload not configured, paste a URL instead)"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            )}
+            <ImageDropzone value={imageUrl} onChange={setImageUrl} shape="rect" />
           </label>
 
           <label className="settings-field">
@@ -104,6 +79,12 @@ export default function NewHangoutModal({ currentUser, onClose, onCreated }) {
               onChange={(e) => setName(e.target.value)}
               required
             />
+          </label>
+
+          <label className="settings-field">
+            <span>Address</span>
+            <AddressField onSelect={setLocation} />
+            {location && <p className="address-selected">✓ {location.label}</p>}
           </label>
 
           <label className="settings-field">

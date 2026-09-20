@@ -8,7 +8,7 @@ from google.auth.transport import requests as google_requests
 
 from app.db.connection import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.schemas.auth import LoginRequest, Token, GoogleLoginRequest
 from app.utils.security import (
     get_password_hash,
@@ -178,4 +178,27 @@ def get_current_user(
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Settings' "Account" section — change email/name/profile picture.
+
+    Deliberately does NOT touch is_verified: changing your email doesn't
+    re-lock the account here. Re-verification-on-email-change is real
+    behavior worth having eventually, but Settings' verification UI is a
+    placeholder for now (see SettingsPage.jsx), so this stays simple until
+    that's actually wired up.
+    """
+    updates = update.model_dump(exclude_unset=True)
+    for key, value in updates.items():
+        setattr(current_user, key, value)
+
+    db.commit()
+    db.refresh(current_user)
     return current_user

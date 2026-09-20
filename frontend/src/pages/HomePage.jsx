@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IconCart, IconCalendar, IconChevronRight, IconPlus } from '../components/icons.jsx'
+import { Link } from 'react-router-dom'
+import { IconPlus } from '../components/icons.jsx'
 import { getMe, getMyHangouts } from '../lib/api.js'
 import NewHangoutModal from '../components/NewHangoutModal.jsx'
 import HangoutDetailModal from '../components/HangoutDetailModal.jsx'
+import MonthGrid from '../components/MonthGrid.jsx'
+import TodoList from '../components/TodoList.jsx'
 
 function formatDate(dateInt) {
   const s = String(dateInt)
@@ -18,7 +20,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedHangout, setSelectedHangout] = useState(null)
-  const navigate = useNavigate()
+  const [cursor, setCursor] = useState(() => {
+    const now = new Date()
+    return { year: now.getFullYear(), month: now.getMonth() }
+  })
 
   async function refresh() {
     const [me, mine] = await Promise.all([getMe(), getMyHangouts()])
@@ -32,7 +37,9 @@ export default function HomePage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const next = hangouts[0]
+  // Soonest-first, so the scrollable list on the side reads like a real
+  // upcoming-hangouts queue rather than creation order.
+  const sorted = [...hangouts].sort((a, b) => a.hangout_date - b.hangout_date)
 
   return (
     <div className="dashboard">
@@ -46,52 +53,44 @@ export default function HomePage() {
         </button>
       </div>
 
-      <div className="dashboard-grid">
-        <div className="dashboard-main">
-          {next ? (
-            <div className="hero-card">
-              <div className="hero-card-label">NEXT HANGOUT</div>
-              <div className="hero-card-title">
-                {next.emoji ? `${next.emoji} ` : ''}
-                {next.hangout_name}
-              </div>
-              <div className="hero-card-meta">{formatDate(next.hangout_date)} · {next.attendees}</div>
-            </div>
-          ) : (
-            !loading && (
-              <div className="hero-card">
-                <div className="hero-card-title">No hangouts yet</div>
-                <div className="hero-card-meta">Create your first one to get started.</div>
-              </div>
-            )
-          )}
-
-          <div className="module-grid">
-            <ModuleCard
-              icon={<IconCart />}
-              tone="mint"
-              title="Shopping list"
-              subtitle={next ? `Open ${next.hangout_name}'s list` : 'Add a hangout first'}
-              onClick={() => next && navigate(`/hangouts/${next.hangout_id}/shopping`)}
-              disabled={!next}
-            />
-            <ModuleCard
-              icon={<IconCalendar />}
-              tone="periwinkle"
-              title="Calendar"
-              subtitle="See every hangout by date"
-              onClick={() => navigate('/calendar')}
-            />
+      <div className="home-grid">
+        <div className="home-main">
+          <div className="home-panel-title-row">
+            <span className="home-panel-title">This month</span>
+            <Link to="/calendar" className="home-panel-link">
+              Full calendar
+            </Link>
           </div>
+          <MonthGrid
+            hangouts={hangouts}
+            cursor={cursor}
+            onCursorChange={setCursor}
+            onSelectHangout={setSelectedHangout}
+            compact
+          />
         </div>
 
-        <aside className="dashboard-side">
+        <aside className="home-side">
+          <TodoList />
+
           <div className="side-card">
             <div className="side-card-title">All your hangouts</div>
-            {hangouts.length > 0 ? (
-              <HangoutCarousel hangouts={hangouts} onSelect={setSelectedHangout} />
+            {loading ? null : sorted.length > 0 ? (
+              <ul className="hangout-scroll-list">
+                {sorted.map((h) => (
+                  <li key={h.hangout_id}>
+                    <button type="button" className="hangout-row" onClick={() => setSelectedHangout(h)}>
+                      <span className="hangout-row-emoji">{h.emoji || '📅'}</span>
+                      <span className="hangout-row-text">
+                        <span className="hangout-row-name">{h.hangout_name}</span>
+                        <span className="hangout-row-date">{formatDate(h.hangout_date)}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <p className="muted" style={{ fontSize: 13.5 }}>Nothing here yet.</p>
+              <p className="muted todo-empty">No hangouts yet — create your first one.</p>
             )}
           </div>
         </aside>
@@ -112,45 +111,5 @@ export default function HomePage() {
         />
       )}
     </div>
-  )
-}
-
-// Auto-scrolls through hangouts on a CSS loop; pauses on hover so it's
-// actually readable if you want to stop and look.
-function HangoutCarousel({ hangouts, onSelect }) {
-  const looped = [...hangouts, ...hangouts] // duplicated so the scroll loop is seamless
-
-  return (
-    <div className="carousel-viewport">
-      <div className="carousel-track" style={{ '--item-count': hangouts.length }}>
-        {looped.map((h, i) => (
-          <button
-            className="carousel-card"
-            key={`${h.hangout_id}-${i}`}
-            type="button"
-            onClick={() => onSelect(h)}
-          >
-            <span className="carousel-emoji">{h.emoji || '📅'}</span>
-            <div>
-              <div className="upcoming-name">{h.hangout_name}</div>
-              <div className="upcoming-date">{formatDate(h.hangout_date)}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function ModuleCard({ icon, tone, title, subtitle, onClick, disabled }) {
-  return (
-    <button type="button" className={`module-card tone-${tone}`} onClick={onClick} disabled={disabled}>
-      <span className="module-icon">{icon}</span>
-      <span className="module-text">
-        <span className="module-title">{title}</span>
-        <span className="module-subtitle">{subtitle}</span>
-      </span>
-      <IconChevronRight className="module-chevron" />
-    </button>
   )
 }

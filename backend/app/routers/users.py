@@ -69,3 +69,9 @@ def delete_user(
     return {
         "message": "User deleted"
     }
+
+
+# Email verification lives at GET /auth/verify (routers/auth.py) — a
+# duplicate GET /users/verify-email used to live here too; removed since
+# nothing called it and having two "the" verification endpoint invited
+# them drifting out of sync. See Obsidian: Bugs and Issues.md.

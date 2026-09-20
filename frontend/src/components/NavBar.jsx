@@ -6,16 +6,14 @@ import { getMe } from '../lib/api.js'
 
 export default function NavBar() {
   const [open, setOpen] = useState(false)
-  const [initial, setInitial] = useState('?')
+  const [user, setUser] = useState(null)
   const menuRef = useRef(null)
   const navigate = useNavigate()
   const loggedIn = isAuthenticated()
 
   useEffect(() => {
     if (loggedIn) {
-      getMe()
-        .then((u) => setInitial(u.full_name.charAt(0).toUpperCase()))
-        .catch(() => {})
+      getMe().then(setUser).catch(() => {})
     }
   }, [loggedIn])
 
@@ -52,7 +50,13 @@ export default function NavBar() {
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
             >
-              <span className="navbar-avatar">{initial}</span>
+              <span className="navbar-avatar">
+                {user?.profile_picture_url ? (
+                  <img src={user.profile_picture_url} alt="" />
+                ) : (
+                  user?.full_name?.charAt(0).toUpperCase() || '?'
+                )}
+              </span>
               <IconChevronDown
                 className={`navbar-caret ${open ? 'navbar-caret-open' : ''}`}
               />

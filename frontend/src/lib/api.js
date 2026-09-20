@@ -68,6 +68,19 @@ export async function getMe() {
   return response.json()
 }
 
+export async function updateMe(updates) {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(updates),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.detail || 'Could not save changes')
+  }
+  return response.json()
+}
+
 export async function getMyHangouts() {
   const response = await fetch(`${API_BASE_URL}/hangouts/mine`, {
     headers: authHeaders(),
@@ -190,6 +203,52 @@ export async function createStore(store) {
     throw new Error(body?.detail || 'Could not create store')
   }
   return response.json()
+}
+
+// Returns [] on any failure (too-short query, network hiccup, Nominatim rate
+// limit) rather than throwing — an autocomplete dropdown should just show
+// nothing rather than an error state.
+export async function getAddressSuggestions(query) {
+  if (!query || query.trim().length < 3) return []
+  const response = await fetch(`${API_BASE_URL}/geocode/suggest?q=${encodeURIComponent(query)}`)
+  if (!response.ok) return []
+  return response.json()
+}
+
+export async function getMyTodos() {
+  const response = await fetch(`${API_BASE_URL}/todos/mine`, {
+    headers: authHeaders(),
+  })
+  if (!response.ok) throw new Error('Could not load your to-dos')
+  return response.json()
+}
+
+export async function createTodo(text) {
+  const response = await fetch(`${API_BASE_URL}/todos/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ text }),
+  })
+  if (!response.ok) throw new Error('Could not add to-do')
+  return response.json()
+}
+
+export async function updateTodo(todoId, updates) {
+  const response = await fetch(`${API_BASE_URL}/todos/${todoId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(updates),
+  })
+  if (!response.ok) throw new Error('Could not update to-do')
+  return response.json()
+}
+
+export async function deleteTodo(todoId) {
+  const response = await fetch(`${API_BASE_URL}/todos/${todoId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  })
+  if (!response.ok) throw new Error('Could not delete to-do')
 }
 
 export async function getCalendarStatus() {
