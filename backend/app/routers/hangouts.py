@@ -5,6 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.db.connection import get_db
 from app.models.hangout import Hangout
+from app.models.item import Item
+from app.models.store import Store
+from app.models.route import Route
+from app.models.pickup import Pickup
+from app.models.todo import Todo
 from app.models.user import User
 from app.schemas.hangout import HangoutCreate, HangoutResponse
 from app.routers.auth import get_current_user
@@ -64,6 +69,31 @@ def delete_hangout(
             status_code=404,
             detail="Hangout not found"
         )
+
+    # Manual cascade: none of these foreign keys have ON DELETE CASCADE at
+    # the DB level (same lesson as reset.py's missing-Todo-import bug — see
+    # Obsidian: Bugs and Issues.md), so child rows across several tables
+    # have to be cleaned up by hand, in FK-safe order, before the hangout
+    # itself can go. This was already a latent bug before today (deleting
+    # any hangout with a store would already have crashed); adding Todo's
+    # hangout_id link made it strictly worse, so it's fixed now rather than
+    # left for later.
+    db.query(Item).filter(Item.hangout_id == hangout_id).delete()
+    db.query(Route).filter(Route.hangout_id == hangout_id).delete()
+    db.query(Pickup).filter(Pickup.hangout_id == hangout_id).delete()
+    db.query(Store).filter(Store.hangout_id == hangout_id).delete()
+
+    # Personal todos outlive the hangout that spawned them (see
+    # routers/stores.py's _ensure_shopping_todo) — unlink, don't delete
+    # someone's task list just because the plan fell through.
+    db.query(Todo).filter(Todo.hangout_id == hangout_id).update({Todo.hangout_id: None})
+
+    # Every user who had this hangout in their hangout_ids array needs it
+    # scrubbed out, or GET /hangouts/mine would break trying to look up a
+    # hangout_id that no longer exists.
+    members = db.query(User).filter(User.hangout_ids.any(hangout_id)).all()
+    for member in members:
+        member.hangout_ids = [h for h in member.hangout_ids if h != hangout_id]
 
     db.delete(hangout)
     db.commit()

@@ -128,7 +128,528 @@
   color: var(--text-h);
 }
 
+.navbar-guest-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  padding: 14px 26px;
+  font-size: 15.5px;
+  border-radius: var(--radius-sm);
+}
+
+/* =====================================================================
+   MARKETING PAGE (logged out)
+   ===================================================================== */
+.marketing {
+  overflow-x: hidden;
+}
+
+/* ---------- Reveal-on-scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 88px 32px 96px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 48px 24px 56px;
+    gap: 40px;
+  }
+}
+
+.hero-copy .eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+}
+
+.hero-headline {
+  font-size: 52px;
+  max-width: 12ch;
+}
+
+@media (max-width: 900px) {
+  .hero-headline {
+    font-size: 38px;
+    max-width: none;
+  }
+}
+
+.hero-sub {
+  margin-top: 20px;
+  font-size: 17px;
+  line-height: 160%;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-try-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.hero-try-link:hover {
+  color: var(--primary);
+}
+
+.hero-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+}
+
+/* ---------- Shared "fake UI" mockup pieces ----------
+   Small building blocks reused across the hero and story sections to
+   evoke the real product (avatars, list rows, pills, placeholder text
+   bars) without needing screenshots or stock illustration. */
+.mockup-pill {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+}
+
+.mockup-pill-teal {
+  background: var(--secondary-soft);
+  color: var(--secondary-strong);
+}
+
+.mockup-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-soft);
+}
+
+.mockup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mockup-line {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  display: inline-block;
+}
+
+.mockup-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mockup-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mockup-title {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.mockup-subtitle {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}
+
+.mockup-avatars {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.mockup-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  margin-left: -8px;
+}
+
+.mockup-avatar:first-child {
+  margin-left: 0;
+}
+
+.mockup-avatar-more {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  margin-left: -8px;
+  background: var(--border);
+  color: var(--ink-soft);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mockup-avatar-add {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-left: -8px;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  color: var(--ink-soft);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mockup-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* ---------- Hero mockup: two layered hangout cards ---------- */
+.hero-mockup {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+}
+
+.hero-mockup-card {
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 22px;
+}
+
+.hero-mockup-card-back {
+  position: absolute;
+  top: -22px;
+  right: -18px;
+  width: 72%;
+  transform: rotate(4deg);
+  opacity: 0.9;
+}
+
+.hero-mockup-card-front {
+  position: relative;
+  box-shadow: var(--shadow);
+  transform: rotate(-2deg);
+}
+
+.hero-mockup-pin {
+  position: absolute;
+  bottom: -16px;
+  left: -22px;
+  font-size: 34px;
+  filter: drop-shadow(0 8px 10px rgba(43, 36, 32, 0.25));
+}
+
+/* ---------- Story sections (alternating narrative) ---------- */
+.story {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@media (max-width: 760px) {
+  .story {
+    padding: 0 24px;
+  }
+}
+
+.story-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+  padding: 72px 0;
+  border-top: 1px solid var(--border);
+}
+
+.story-section:first-child {
+  border-top: none;
+}
+
+@media (max-width: 860px) {
+  .story-section {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 48px 0;
+  }
+}
+
+.story-copy-reverse {
+  grid-column: 2;
+}
+
+.story-copy-reverse ~ .story-visual {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+@media (max-width: 860px) {
+  .story-copy-reverse,
+  .story-copy-reverse ~ .story-visual {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+.story-copy .eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.story-copy h2 {
+  font-size: 28px;
+  max-width: 16ch;
+}
+
+.story-body {
+  margin-top: 14px;
+  font-size: 15.5px;
+  line-height: 165%;
+  color: var(--ink-soft);
+  max-width: 42ch;
+}
+
+.tone-primary .eyebrow { color: var(--primary); }
+.tone-secondary .eyebrow { color: var(--secondary); }
+.tone-accent .eyebrow { color: #a06600; }
+
+.story-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-mockup {
+  width: 100%;
+  max-width: 340px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.mockup-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--ink-soft);
+}
+
+.mockup-field + .mockup-field {
+  margin-top: 10px;
+}
+
+.story-mockup-create .mockup-avatars {
+  margin-top: 16px;
+}
+
+.mockup-map {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  background: var(--secondary-soft);
+}
+
+.mockup-route {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 6;
+  stroke-linecap: round;
+}
+
+.mockup-driver-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.mockup-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.mockup-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.mockup-list-row-highlight {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.mockup-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mockup-arrow {
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin: 10px 0;
+}
+
+.mockup-todo-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent-soft);
+  color: #7a4f00;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.mockup-todo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.mockup-auto-tag {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.together-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink-soft);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.together-row:last-child {
+  border-bottom: none;
+}
+
+/* ---------- Final CTA — a confident, high-contrast closing band ---------- */
+.final-cta {
+  margin: 96px 0 0;
+  padding: 88px 32px;
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.final-cta h2 {
+  color: #fff;
+  font-size: 34px;
+  max-width: 18ch;
+}
+
+.final-cta .hero-sub {
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 40ch;
+}
+
+.final-cta .btn-primary {
+  margin-top: 8px;
+}
+
+.marketing-footer {
+  padding: 40px 32px 56px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ---------- Page shell ---------- */
+.authenticated-shell {
+  zoom: 1.25;
+}
+
 .page {
   flex: 1;
   background: var(--surface);
@@ -450,6 +971,21 @@
   text-decoration: line-through;
 }
 
+.todo-auto-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--periwinkle);
+  background: var(--periwinkle-soft);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.todo-check .todo-auto-badge {
+  overflow: visible;
+  white-space: nowrap;
+}
+
 .todo-remove {
   border: none;
   background: none;
@@ -606,6 +1142,38 @@
   color: var(--periwinkle);
   font-weight: 600;
   cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.login-forgot-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.login-inline-action {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: -6px 0 0;
+}
+
+.login-success {
+  color: var(--mint);
+  background: var(--mint-soft);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 16px 0 0;
 }
 
 .divider {
@@ -1238,6 +1806,29 @@
   margin-bottom: 24px;
 }
 
+.store-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.store-remove-btn {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.store-remove-btn:hover {
+  background: var(--amber-soft);
+  color: #a06600;
+}
+
 .store-block h3 {
   margin: 0 0 8px;
   font-size: 16px;
@@ -1355,10 +1946,86 @@
 }
 
 /* ---------- Route map ---------- */
-.route-map {
-  height: 480px;
+.route-map-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .route-map-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.route-map-canvas {
+  height: 520px;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border);
-  margin-top: 16px;
+}
+
+.route-leaflet-map {
+  height: 100%;
+  width: 100%;
+}
+
+.route-map-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.route-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.route-card-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.route-card-driver {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.route-card-stops {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-h);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.route-card-stats {
+  font-size: 12px;
+  color: var(--text);
+  margin: 8px 0 0;
+}
+
+.route-card-stats-fallback {
+  font-style: italic;
+}
+
+.route-card-unassigned {
+  border-left-color: #9a9aa5;
+  border-left-style: dashed;
 }

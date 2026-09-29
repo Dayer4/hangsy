@@ -1,6 +1,10 @@
-# Decision (see Obsidian: Route Optimization.md / Versions.md): no custom route
-# optimization. Drivers just get an even split of pickups; Google/Apple Maps
-# handles turn-by-turn navigation on export (see services/export.py).
+# Fallback only — the primary path is now a real OR-Tools + OSRM solve
+# (see services/route_optimizer.py, wired in from routers/routes.py). This
+# plain round-robin split kicks in only if that solve fails for any reason
+# (missing coordinates, OSRM unreachable, no feasible solution), so routes
+# never just break. See Obsidian: Route Optimization.md for the full
+# decision history — this WAS the primary strategy before OR-Tools/OSRM
+# were reintroduced.
 
 
 def split_pickups_by_driver(pickups, drivers):

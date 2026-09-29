@@ -57,6 +57,15 @@ export function IconMail(props) {
   )
 }
 
+export function IconUser(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" {...base} {...props}>
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 19.5c0-3.6 3.1-6 7-6s7 2.4 7 6" />
+    </svg>
+  )
+}
+
 export function IconLock(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" {...base} {...props}>

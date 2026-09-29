@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { IconCar, IconChevronDown, IconMail, IconShield } from '../components/icons.jsx'
-import { getMe, getMyDriver, saveMyDriver, updateMe } from '../lib/api.js'
+import { IconCar, IconChevronDown, IconLock, IconMail, IconShield, IconUser } from '../components/icons.jsx'
+import { getMe, getMyDriver, saveMyDriver, updateMe, changeUsername, resendVerification, requestPasswordChange } from '../lib/api.js'
 import ImageDropzone from '../components/ImageDropzone.jsx'
 
 export default function SettingsPage() {
@@ -21,13 +21,24 @@ export default function SettingsPage() {
   const [emailSaving, setEmailSaving] = useState(false)
   const [emailError, setEmailError] = useState('')
 
+  const [usernameDraft, setUsernameDraft] = useState('')
+  const [usernameEditing, setUsernameEditing] = useState(false)
+  const [usernameSaving, setUsernameSaving] = useState(false)
+  const [usernameError, setUsernameError] = useState('')
+
   const [resendMessage, setResendMessage] = useState('')
+  const [resendSending, setResendSending] = useState(false)
+
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSending, setPasswordSending] = useState(false)
 
   useEffect(() => {
     getMe()
       .then((u) => {
         setUser(u)
         setEmailDraft(u.email)
+        setUsernameDraft(u.username)
       })
       .catch(() => {})
     getMyDriver()
@@ -88,11 +99,48 @@ export default function SettingsPage() {
     }
   }
 
-  function handleResendVerification() {
-    // Placeholder — no backend call yet. Real resend-verification-email
-    // logic (rate limiting, a fresh token) isn't wired up; this just shows
-    // the UI shape until it is.
-    setResendMessage('This will resend a real verification email once that flow is built.')
+  async function handleSaveUsername(e) {
+    e.preventDefault()
+    setUsernameError('')
+    setUsernameSaving(true)
+    try {
+      const updated = await changeUsername(usernameDraft)
+      setUser(updated)
+      setUsernameEditing(false)
+    } catch (err) {
+      // Surfaces the backend's own message directly — including the 1-minute
+      // cooldown countdown ("Wait 42s before changing your username again").
+      setUsernameError(err.message || 'Could not change username')
+    } finally {
+      setUsernameSaving(false)
+    }
+  }
+
+  async function handleResendVerification() {
+    setResendSending(true)
+    setResendMessage('')
+    try {
+      const res = await resendVerification({ email: user?.email })
+      setResendMessage(res.message)
+    } catch (err) {
+      setResendMessage(err.message || 'Could not resend verification email')
+    } finally {
+      setResendSending(false)
+    }
+  }
+
+  async function handleRequestPasswordChange() {
+    setPasswordError('')
+    setPasswordMessage('')
+    setPasswordSending(true)
+    try {
+      const res = await requestPasswordChange()
+      setPasswordMessage(res.message)
+    } catch (err) {
+      setPasswordError(err.message || 'Could not start password change')
+    } finally {
+      setPasswordSending(false)
+    }
   }
 
   return (
@@ -120,6 +168,53 @@ export default function SettingsPage() {
             <h2>Account</h2>
             <div className="settings-card">
               <div className="settings-row settings-row-static">
+                <IconUser />
+                <span>Username</span>
+                {!usernameEditing && (
+                  <button type="button" className="settings-inline-link" onClick={() => setUsernameEditing(true)}>
+                    Change
+                  </button>
+                )}
+              </div>
+
+              {usernameEditing ? (
+                <form className="settings-expand" onSubmit={handleSaveUsername}>
+                  <label className="settings-field">
+                    <span>New username</span>
+                    <input
+                      type="text"
+                      value={usernameDraft}
+                      onChange={(e) => setUsernameDraft(e.target.value)}
+                      required
+                    />
+                  </label>
+                  <p className="settings-hint">
+                    Letters, numbers, and underscores only (3–20 characters). No email or
+                    password confirmation needed — just a 1-minute cooldown between changes.
+                  </p>
+                  {usernameError && <p className="login-error">{usernameError}</p>}
+                  <div className="modal-actions modal-actions-inline">
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => {
+                        setUsernameEditing(false)
+                        setUsernameDraft(user?.username || '')
+                        setUsernameError('')
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn-primary" disabled={usernameSaving}>
+                      {usernameSaving ? 'Saving…' : 'Save username'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="settings-static-value">@{user?.username}</div>
+              )}
+
+              <div className="settings-row settings-row-static settings-row-bordered">
                 <IconMail />
                 <span>Email</span>
                 {!emailEditing && (
@@ -175,10 +270,47 @@ export default function SettingsPage() {
                     ? "You're all set — this account's email is confirmed."
                     : 'Verify your email to make sure you can recover your account.'}
                 </p>
-                <button type="button" className="btn-secondary" onClick={handleResendVerification}>
-                  Resend verification email
-                </button>
-                {resendMessage && <p className="settings-hint">{resendMessage}</p>}
+                {!user?.is_verified && (
+                  <>
+                    <button type="button" className="btn-secondary" onClick={handleResendVerification} disabled={resendSending}>
+                      {resendSending ? 'Sending…' : 'Resend verification email'}
+                    </button>
+                    {resendMessage && <p className="settings-hint">{resendMessage}</p>}
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-group">
+            <h2>Password</h2>
+            <div className="settings-card">
+              <div className="settings-row settings-row-static">
+                <IconLock />
+                <span>Change password</span>
+              </div>
+              <div className="settings-expand settings-expand-quiet">
+                {user?.is_verified ? (
+                  <>
+                    <p className="settings-hint">
+                      We'll email a secure, 30-minute link to {user?.email} to set a new password.
+                      Every device you're logged in on — including this one — will need to log in
+                      again once it's changed.
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleRequestPasswordChange}
+                      disabled={passwordSending}
+                    >
+                      {passwordSending ? 'Sending…' : 'Send password change link'}
+                    </button>
+                    {passwordMessage && <p className="settings-hint">{passwordMessage}</p>}
+                    {passwordError && <p className="login-error">{passwordError}</p>}
+                  </>
+                ) : (
+                  <p className="settings-hint">Verify your email above before you can change your password.</p>
+                )}
               </div>
             </div>
           </section>

@@ -31,3 +31,16 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UserPublic(BaseModel):
+    """What OTHER users get to see about someone — friend search results,
+    friend lists, incoming/outgoing requests. No email, no verification
+    status, no hangout_ids: none of that is any other user's business."""
+    user_id: int
+    username: str
+    full_name: str
+    profile_picture_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True

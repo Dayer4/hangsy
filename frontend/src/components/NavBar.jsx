@@ -82,9 +82,14 @@ export default function NavBar() {
             )}
           </div>
         ) : (
-          <NavLink to="/login" className="btn-secondary">
-            Log in
-          </NavLink>
+          <div className="navbar-guest-actions">
+            <NavLink to="/login" className="btn-secondary">
+              Log in
+            </NavLink>
+            <NavLink to="/signup" className="btn-primary">
+              Get started
+            </NavLink>
+          </div>
         )}
       </div>
     </header>

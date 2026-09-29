@@ -18,6 +18,8 @@ class TodoUpdate(BaseModel):
 class TodoResponse(TodoBase):
     todo_id: int
     done: bool
+    hangout_id: Optional[int] = None
+    auto_generated: bool = False
 
     class Config:
         from_attributes = True

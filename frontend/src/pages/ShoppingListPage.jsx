@@ -4,6 +4,7 @@ import {
   getHangout,
   getStores,
   createStore,
+  deleteStore,
   getItems,
   createItem,
   updateItem,
@@ -70,6 +71,12 @@ export default function ShoppingListPage() {
     refresh()
   }
 
+  async function handleRemoveStore(storeId) {
+    if (!confirm('Remove this store and its items from the list?')) return
+    await deleteStore(storeId)
+    refresh()
+  }
+
   async function handleToggleBought(item) {
     await updateItem(item.item_id, { bought: !item.bought })
     refresh()
@@ -99,7 +106,12 @@ export default function ShoppingListPage() {
 
       {stores.map((store) => (
         <div key={store.store_id} className="store-block">
-          <h3>{store.store_name}</h3>
+          <div className="store-block-header">
+            <h3>{store.store_name}</h3>
+            <button type="button" className="store-remove-btn" onClick={() => handleRemoveStore(store.store_id)}>
+              Remove store
+            </button>
+          </div>
           <ItemTable
             items={items.filter((i) => i.store_id === store.store_id)}
             onToggleBought={handleToggleBought}

@@ -1,30 +1,94 @@
+/* =====================================================================
+   HANGSY DESIGN SYSTEM
+   =====================================================================
+   Personality target: friendly, social, warm, modern, slightly playful,
+   confident, human. Deliberately NOT: corporate/enterprise, AI-startup
+   blue/purple gradients, sterile minimalism, cartoonish.
+
+   Palette direction: most "AI-generated" apps default to blue/purple as
+   primary — coral is the anchor here specifically to avoid that, paired
+   with a grounded teal (not another cool blue) as the secondary, and a
+   warm golden accent used sparingly. Neutrals are warm (a soft ecru
+   paper background, warm ink text) rather than cold SaaS gray, so the
+   app reads as "warm and social" even before any color is added.
+   ===================================================================== */
+
 :root {
-  --text: #6b6375;
-  --text-h: #201d2b;
-  --bg: #fff;
-  --border: #e5e4e7;
+  /* ---------- Semantic color tokens (the real palette) ---------- */
+  --primary: #ff5a46;          /* coral — primary actions, brand */
+  --primary-soft: #ffe4de;
+  --primary-strong: #e6432f;   /* hover/pressed state */
 
-  /* Hangsy palette: periwinkle = actions/routes, mint = purchases/lists,
-     amber = progress/highlights. --surface has a faint periwinkle tint
-     rather than neutral grey, so cards read as "on the app" not "on a
-     generic dashboard". */
-  --periwinkle: #5b5fef;
-  --periwinkle-soft: #eeeefd;
-  --mint: #1fae8e;
-  --mint-soft: #e4f7f1;
-  --amber: #ffb648;
-  --amber-soft: #fff2dc;
-  --surface: #f6f6fc;
-  --shadow:
-    rgba(76, 66, 130, 0.08) 0 10px 20px -6px, rgba(76, 66, 130, 0.06) 0 2px 6px -2px;
+  --secondary: #0f7b6c;        /* deep teal — routes, confirmations, logistics */
+  --secondary-soft: #ddf0ea;
+  --secondary-strong: #0b5e52;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --accent: #f2a93b;           /* marigold — playful highlights, used sparingly */
+  --accent-soft: #fcebc7;
+
+  --success: var(--secondary);
+  --success-soft: var(--secondary-soft);
+  --warning: var(--accent);
+  --warning-soft: var(--accent-soft);
+  --danger: #c1443a;           /* muted brick — distinct from --primary so
+                                   errors never read as a call-to-action */
+  --danger-soft: #f7ded9;
+
+  /* ---------- Neutrals (warm, not cold gray) ---------- */
+  --ink: #2b2420;
+  --ink-soft: #6b5f56;
+  --paper: #fcf8f3;             /* page background */
+  --bg: #ffffff;                /* card/surface background, on --paper */
+  --border: #ece3d8;
+
+  --shadow: 0 20px 40px -14px rgba(43, 36, 32, 0.16), 0 4px 10px -4px rgba(43, 36, 32, 0.08);
+  --shadow-soft: 0 8px 20px -8px rgba(43, 36, 32, 0.12);
+
+  /* ---------- Backward-compat aliases ----------
+     hangsy.css references --periwinkle/--mint/--amber/--surface/--text/
+     --text-h throughout the existing app (~1400 lines) — rather than
+     touch every file in the same pass as the palette swap, these names
+     are kept as aliases onto the new semantic tokens above, so the whole
+     app repaints immediately without the higher-risk churn of a global
+     rename. Real follow-up task, tracked in Obsidian: migrate component
+     CSS onto the semantic names directly and retire these. */
+  --periwinkle: var(--primary);
+  --periwinkle-soft: var(--primary-soft);
+  --mint: var(--secondary);
+  --mint-soft: var(--secondary-soft);
+  --amber: var(--accent);
+  --amber-soft: var(--accent-soft);
+  --text: var(--ink-soft);
+  --text-h: var(--ink);
+  --surface: var(--paper);
+
+  /* ---------- Type ---------- */
+  --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+  /* ---------- Spacing scale (4px base) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ---------- Radius scale — deliberately varied, not "everything
+     rounded the same amount": tight for controls, generous for hero-scale
+     imagery, pill for badges/avatars. ---------- */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
 
   font: 16px/150% var(--sans);
   color-scheme: light dark;
-  color: var(--text);
-  background: var(--surface);
+  color: var(--ink-soft);
+  background: var(--paper);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -33,20 +97,23 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #a19cac;
-    --text-h: #f1eef7;
-    --bg: #1c1a24;
-    --border: #33303e;
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 20px -6px, rgba(0, 0, 0, 0.3) 0 2px 6px -2px;
+    --ink: #f5efe8;
+    --ink-soft: #c2b6a9;
+    --paper: #211c19;
+    --bg: #2a2420;
+    --border: #3c342d;
 
-    --periwinkle: #8285f7;
-    --periwinkle-soft: rgba(130, 133, 247, 0.16);
-    --mint: #34d1ac;
-    --mint-soft: rgba(52, 209, 172, 0.15);
-    --amber: #ffc266;
-    --amber-soft: rgba(255, 194, 102, 0.15);
-    --surface: #17151d;
+    --primary: #ff7862;
+    --primary-soft: rgba(255, 120, 98, 0.16);
+    --secondary: #3ecdb6;
+    --secondary-soft: rgba(62, 205, 182, 0.14);
+    --accent: #f7c168;
+    --accent-soft: rgba(247, 193, 104, 0.14);
+    --danger: #e07268;
+    --danger-soft: rgba(224, 114, 104, 0.14);
+
+    --shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.5), 0 4px 10px -4px rgba(0, 0, 0, 0.3);
+    --shadow-soft: 0 8px 20px -8px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -65,12 +132,34 @@ body {
   flex-direction: column;
 }
 
+/* ---------- Type hierarchy ----------
+   Fraunces for anything that establishes hierarchy/personality (display,
+   h1-h3); Figtree for everything read in quantity (body, UI, labels).
+   Two families, clearly distinct roles — not decoration. */
 h1, h2, h3 {
   font-family: var(--heading);
   font-weight: 600;
-  color: var(--text-h);
+  color: var(--ink);
   margin: 0;
   letter-spacing: -0.01em;
+}
+
+.display {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
 }
 
 p {

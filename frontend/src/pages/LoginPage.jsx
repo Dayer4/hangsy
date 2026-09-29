@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { IconMail, IconLock, IconEye, IconEyeOff, IconCar } from '../components/icons.jsx'
-import { login, loginWithGoogle } from '../lib/api.js'
+import { login, loginWithGoogle, forgotPassword, resendVerification } from '../lib/api.js'
 import { setToken } from '../lib/auth.js'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -12,7 +12,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [unverified, setUnverified] = useState(false)
+  const [resendMessage, setResendMessage] = useState('')
+
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotUsername, setForgotUsername] = useState('')
+  const [forgotMessage, setForgotMessage] = useState('')
+  const [forgotSending, setForgotSending] = useState(false)
+
   const navigate = useNavigate()
+  const location = useLocation()
   const googleButtonRef = useRef(null)
 
   const handleGoogleCredential = useCallback(
@@ -67,6 +76,8 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setUnverified(false)
+    setResendMessage('')
     setSubmitting(true)
     try {
       const { access_token } = await login(username, password)
@@ -74,8 +85,36 @@ export default function LoginPage() {
       navigate('/')
     } catch (err) {
       setError(err.message || 'Login failed')
+      // Matches the exact wording routers/auth.py's login() raises for an
+      // unverified account — brittle to a wording change there, but this
+      // avoids adding a machine-readable error code for just one case.
+      setUnverified((err.message || '').toLowerCase().includes('verify your email'))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleResend() {
+    setResendMessage('')
+    try {
+      const res = await resendVerification({ username })
+      setResendMessage(res.message)
+    } catch (err) {
+      setResendMessage(err.message)
+    }
+  }
+
+  async function handleForgotSubmit(e) {
+    e.preventDefault()
+    setForgotMessage('')
+    setForgotSending(true)
+    try {
+      const res = await forgotPassword(forgotUsername)
+      setForgotMessage(res.message)
+    } catch (err) {
+      setForgotMessage(err.message)
+    } finally {
+      setForgotSending(false)
     }
   }
 
@@ -96,6 +135,8 @@ export default function LoginPage() {
         <div className="login-form-wrap">
           <h1>Welcome back</h1>
           <p className="muted">Plan the next one.</p>
+
+          {location.state?.message && <p className="login-success">{location.state.message}</p>}
 
           <form className="login-form" onSubmit={handleSubmit}>
             <label className="field">
@@ -132,7 +173,45 @@ export default function LoginPage() {
 
             {error && <p className="login-error">{error}</p>}
 
-            <div className="login-forgot">Forgot password?</div>
+            {unverified && (
+              <div className="login-inline-action">
+                <button type="button" className="settings-inline-link" onClick={handleResend}>
+                  Resend verification email
+                </button>
+                {resendMessage && <p className="settings-hint">{resendMessage}</p>}
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="login-forgot"
+              onClick={() => setForgotOpen((v) => !v)}
+            >
+              Forgot password?
+            </button>
+
+            {forgotOpen && (
+              <div className="login-forgot-panel">
+                <label className="field">
+                  <IconMail />
+                  <input
+                    type="text"
+                    placeholder="Your username"
+                    value={forgotUsername}
+                    onChange={(e) => setForgotUsername(e.target.value)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn-secondary btn-block"
+                  onClick={handleForgotSubmit}
+                  disabled={forgotSending || !forgotUsername.trim()}
+                >
+                  {forgotSending ? 'Sending…' : 'Email me a reset link'}
+                </button>
+                {forgotMessage && <p className="settings-hint">{forgotMessage}</p>}
+              </div>
+            )}
 
             <button type="submit" className="btn-primary btn-block" disabled={submitting}>
               {submitting ? 'Logging in…' : 'Log in'}

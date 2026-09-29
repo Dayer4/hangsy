@@ -6,9 +6,10 @@ from app.models.route import Route
 from app.models.pickup import Pickup
 from app.models.driver import Driver
 from app.models.hangout import Hangout
+from app.models.user import User
 from app.schemas.route import RouteCreate, RouteResponse
 from app.services.driver_assignments import split_pickups_by_driver
-from app.models.user import User
+from app.services.route_optimizer import solve_routes
 from app.routers.auth import get_current_user
 
 
@@ -39,6 +40,63 @@ def _validate_pickup_ids(pickup_ids: list[int], db: Session):
         )
 
 
+def _available_drivers(hangout: Hangout, db: Session) -> list[Driver]:
+    """The vehicle pool for a hangout's route solve: the creator's saved
+    vehicle, plus a saved vehicle from anyone else genuinely IN this hangout
+    (hangout_ids contains it).
+
+    Honest limitation worth knowing: there's currently no "join a hangout"
+    flow — nothing ever adds a hangout_id to anyone's hangout_ids except the
+    creator's own, at creation (see routers/hangouts.py's create_hangout).
+    So in practice, today, this almost always resolves to exactly one
+    driver: the creator's. That's still a real, useful problem for OR-Tools
+    to solve (best stop order for one vehicle is a Traveling Salesman
+    Problem, which is what a 1-vehicle CVRP reduces to) — it just isn't
+    exercising the *multi*-driver dimension until a join/invite feature
+    exists to make hangout_ids reflect more than the creator. This function
+    is written to already do the right thing once that's built, rather than
+    hardcoding "just the creator" — nothing here needs to change later.
+    """
+    member_ids = {hangout.creator_id}
+    members = db.query(User).filter(User.hangout_ids.any(hangout.hangout_id)).all()
+    member_ids.update(u.user_id for u in members)
+
+    return db.query(Driver).filter(Driver.user_id.in_(member_ids)).all()
+
+
+def _solve_assignments(hangout: Hangout, pickups: list[Pickup], drivers: list[Driver]) -> dict[int, list[int]]:
+    """Tries the real OR-Tools + OSRM solve; falls back to the plain
+    round-robin split (services/driver_assignments.py) on ANY failure —
+    missing coordinates, no feasible solution, OSRM down, an unexpected
+    OR-Tools error — so assigning routes never just breaks. The fallback is
+    a worse ROUTE, never a missing one.
+    """
+    try:
+        coordinates = [(hangout.hangout_location_lat, hangout.hangout_location_lng)] + [
+            (p.location_lat, p.location_lng) for p in pickups
+        ]
+        # Every coordinate has to be real for the solver to mean anything —
+        # a (0, 0) or missing lat/lng would silently route through the
+        # Atlantic Ocean rather than fail loudly.
+        if not all(lat and lng for lat, lng in coordinates):
+            raise ValueError("missing coordinates")
+
+        capacities = [driver.capacity or 1 for driver in drivers]
+
+        solved = solve_routes(coordinates, capacities)
+        if solved is None:
+            raise ValueError("no feasible solution")
+
+        return {
+            drivers[vehicle_index].driver_id: [pickups[node - 1].pickup_id for node in stops]
+            for vehicle_index, stops in enumerate(solved)
+            if stops
+        }
+    except Exception as e:
+        print(f"Route solve failed, falling back to round-robin split: {e}")
+        return split_pickups_by_driver(pickups, drivers)
+
+
 # Create a route stop
 @router.post("/", response_model=RouteResponse)
 def create_route(
@@ -59,7 +117,8 @@ def create_route(
     return new_route
 
 
-# Split a hangout's pickups evenly across its drivers and create one Route per driver
+# Solve (or re-solve) a hangout's routes from scratch: which of its
+# available drivers takes which pickups, in what order.
 @router.post("/assign/{hangout_id}", response_model=list[RouteResponse])
 def assign_routes(
     hangout_id: int,
@@ -72,26 +131,41 @@ def assign_routes(
 
     pickups = db.query(Pickup).filter(Pickup.hangout_id == hangout_id).all()
     if not pickups:
-        raise HTTPException(status_code=400, detail="Hangout has no pickups to assign")
+        raise HTTPException(status_code=400, detail="Hangout has no pickups to assign — add a store first")
 
-    driver_ids = {p.driver_id for p in pickups if p.driver_id is not None}
-    drivers = db.query(Driver).filter(Driver.driver_id.in_(driver_ids)).all()
+    drivers = _available_drivers(hangout, db)
     if not drivers:
         raise HTTPException(
             status_code=400,
-            detail="No drivers assigned to this hangout's pickups yet"
+            detail="No one in this hangout has a saved vehicle yet — add one in Settings"
         )
 
-    assignments = split_pickups_by_driver(pickups, drivers)
+    assignments = _solve_assignments(hangout, pickups, drivers)
+
+    # "Assign" means "recompute from scratch" — without clearing old routes
+    # first, re-running this after adding a store would just pile up a
+    # second, conflicting set of Route rows alongside the first.
+    db.query(Route).filter(Route.hangout_id == hangout_id).delete()
+
+    # Every pickup starts this solve unassigned; only ones the solver
+    # actually placed on a route get a driver_id below. This clears out
+    # whatever an earlier solve left behind, so a pickup dropped this time
+    # (e.g. total capacity shrank) doesn't keep showing a stale driver.
+    for pickup in pickups:
+        pickup.driver_id = None
 
     new_routes = []
-    for driver_id, ids in assignments.items():
-        if not ids:
+    for driver_id, pickup_ids in assignments.items():
+        if not pickup_ids:
             continue
-        first_pickup = next(p for p in pickups if p.pickup_id == ids[0])
+
+        for pickup_id in pickup_ids:
+            next(p for p in pickups if p.pickup_id == pickup_id).driver_id = driver_id
+
+        first_pickup = next(p for p in pickups if p.pickup_id == pickup_ids[0])
         new_route = Route(
             hangout_id=hangout_id,
-            pickup_ids=ids,
+            pickup_ids=pickup_ids,
             pickup_order=0,
             location_lat=first_pickup.location_lat,
             location_lng=first_pickup.location_lng,
@@ -105,6 +179,18 @@ def assign_routes(
         db.refresh(r)
 
     return new_routes
+
+
+# Every route for a hangout, across all its drivers — what the route map
+# renders. (The older /hangout/{hangout_id}/{driver_id} below needs a
+# specific driver up front, which the map doesn't necessarily know yet.)
+@router.get("/by-hangout/{hangout_id}", response_model=list[RouteResponse])
+def get_routes_for_hangout(
+    hangout_id: int,
+    db: Session = Depends(get_db)
+):
+    return db.query(Route).filter(Route.hangout_id == hangout_id).all()
+
 
 # Get a specific route stop
 @router.get("/{route_id}", response_model=RouteResponse)

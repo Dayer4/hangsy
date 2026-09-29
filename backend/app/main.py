@@ -28,7 +28,8 @@ from app.routers import (
     pickup,
     calendar,
     todos,
-    geocode
+    geocode,
+    friends
 )
 
 
@@ -62,6 +63,7 @@ app.include_router(pickup.router)
 app.include_router(calendar.router)
 app.include_router(todos.router)
 app.include_router(geocode.router)
+app.include_router(friends.router)
 
 @app.get("/")
 def root():

@@ -81,6 +81,62 @@ export async function updateMe(updates) {
   return response.json()
 }
 
+export async function changeUsername(username) {
+  const response = await fetch(`${API_BASE_URL}/auth/username`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ username }),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.detail || 'Could not change username')
+  }
+  return response.json()
+}
+
+export async function resendVerification({ email, username } = {}) {
+  const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, username }),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(body?.detail || 'Could not resend verification email')
+  return body
+}
+
+export async function forgotPassword(username) {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username }),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(body?.detail || 'Could not send reset link')
+  return body
+}
+
+export async function requestPasswordChange() {
+  const response = await fetch(`${API_BASE_URL}/auth/request-password-change`, {
+    method: 'POST',
+    headers: authHeaders(),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(body?.detail || 'Could not start password change')
+  return body
+}
+
+export async function confirmPasswordChange(token, newPassword) {
+  const response = await fetch(`${API_BASE_URL}/auth/confirm-password-change`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, new_password: newPassword }),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(body?.detail || 'Could not change password')
+  return body
+}
+
 export async function getMyHangouts() {
   const response = await fetch(`${API_BASE_URL}/hangouts/mine`, {
     headers: authHeaders(),
@@ -163,6 +219,24 @@ export async function getPickups(hangoutId) {
   return response.json()
 }
 
+export async function getHangoutRoutes(hangoutId) {
+  const response = await fetch(`${API_BASE_URL}/routes/by-hangout/${hangoutId}`)
+  if (!response.ok) throw new Error('Could not load routes')
+  return response.json()
+}
+
+export async function assignRoutes(hangoutId) {
+  const response = await fetch(`${API_BASE_URL}/routes/assign/${hangoutId}`, {
+    method: 'POST',
+    headers: authHeaders(),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.detail || 'Could not assign routes')
+  }
+  return response.json()
+}
+
 export async function getStores(hangoutId) {
   const response = await fetch(`${API_BASE_URL}/stores/?hangout_id=${hangoutId}`)
   if (!response.ok) throw new Error('Could not load stores')
@@ -176,6 +250,15 @@ export async function getMyDriver() {
   })
   if (response.status === 404) return null
   if (!response.ok) throw new Error('Could not load your vehicle')
+  return response.json()
+}
+
+// All drivers, system-wide — used only to look up a route's driver_id ->
+// name for display on the route map. (No per-driver GET endpoint exists
+// yet; filtering this client-side is the pragmatic option until one does.)
+export async function getAllDrivers() {
+  const response = await fetch(`${API_BASE_URL}/drivers/`)
+  if (!response.ok) return []
   return response.json()
 }
 
@@ -203,6 +286,14 @@ export async function createStore(store) {
     throw new Error(body?.detail || 'Could not create store')
   }
   return response.json()
+}
+
+export async function deleteStore(storeId) {
+  const response = await fetch(`${API_BASE_URL}/stores/${storeId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  })
+  if (!response.ok) throw new Error('Could not remove store')
 }
 
 // Returns [] on any failure (too-short query, network hiccup, Nominatim rate

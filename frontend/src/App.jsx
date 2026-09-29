@@ -5,9 +5,11 @@ import SettingsPage from './pages/SettingsPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import SignupPage from './pages/SignupPage.jsx'
 import VerifyEmailPage from './pages/VerifyEmailPage.jsx'
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import CalendarPage from './pages/CalendarPage.jsx'
 import ShoppingListPage from './pages/ShoppingListPage.jsx'
 import RouteMapPage from './pages/RouteMapPage.jsx'
+import DraftHangoutPage from './pages/DraftHangoutPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
@@ -16,8 +18,10 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/verify" element={<VerifyEmailPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<RootPage />} />
+        <Route path="/try" element={<DraftHangoutPage />} />
         <Route
           path="/settings"
           element={

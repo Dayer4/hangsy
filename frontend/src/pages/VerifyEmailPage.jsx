@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef} from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { API_BASE_URL } from '../lib/api.js'
 
@@ -6,8 +6,12 @@ export default function VerifyEmailPage() {
   const [params] = useSearchParams()
   const [status, setStatus] = useState('checking') // checking | ok | error
   const [message, setMessage] = useState('')
+  const hasVerified = useRef(false)
 
   useEffect(() => {
+    if (hasVerified.current) return
+    hasVerified.current = true
+
     const token = params.get('token')
     if (!token) {
       setStatus('error')

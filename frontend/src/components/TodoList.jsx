@@ -47,7 +47,8 @@ export default function TodoList() {
           <li key={todo.todo_id} className={todo.done ? 'todo-item-done' : ''}>
             <label className="todo-check">
               <input type="checkbox" checked={todo.done} onChange={() => handleToggle(todo)} />
-              <span>{todo.text}</span>
+              <span className="todo-text">{todo.text}</span>
+              {todo.auto_generated && <span className="todo-auto-badge">Auto</span>}
             </label>
             <button
               type="button"
